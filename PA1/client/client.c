@@ -130,7 +130,7 @@ void main(int argc, char *argv[])
     memset(command,0,10);
     memset(filename,0,20);
 	// Recieve the command
-    scanf ("%[^\n]%*c", inp);
+    scanf (" %[^\n]%*c", inp);
     sendto(udp_socket, inp, strlen(inp), 0, (struct sockaddr *)&serveraddr,sizeof(serveraddr));
     sscanf(inp,"%s %s",command,filename);
 	// Put the file into the server	

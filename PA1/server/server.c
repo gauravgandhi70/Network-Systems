@@ -61,7 +61,7 @@ void main(int argc, char *argv[])
 
   while(1)
   {
-	  printf("\nwaiting on port %d\n",port); 
+	  printf("\n waiting on port %d\n",port); 
 	  
 	  recvlen = recvfrom(udp_socket, buf, BUFSIZE, 0, (struct sockaddr *)&remaddr, &addrlen);
           //printf("received %d bytes\n", recvlen); 
@@ -267,10 +267,12 @@ void main(int argc, char *argv[])
 			int ret = system(cmd);
 			if(ret)
 			{
+				printf("Error in Deleting\n");
 				sendto(udp_socket, "Error in Deleting", 17, 0, (struct sockaddr *)&remaddr, addrlen);
 			}
 			else
 			{
+				printf("Successfully deleted %s\n",filename);
 				sendto(udp_socket, "Successful", 18, 0, (struct sockaddr *)&remaddr, addrlen);
 			}
 					
@@ -310,6 +312,7 @@ void main(int argc, char *argv[])
 	  else if((strcmp(command,"exit")==0))
           {
 		//sendto(udp_socket, buf, strlen(buf), 0, (struct sockaddr *)&remaddr, addrlen);
+		printf("Closing the socket\n");
 		close(udp_socket);
 		return;	
 	  }	  
@@ -318,7 +321,7 @@ void main(int argc, char *argv[])
 	  else if(recvlen > 0)
 	  {
 				
-		printf("Command Not Found");
+		printf("Command Not Found \n");
      		//sendto(udp_socket, buf, strlen(buf), 0, (struct sockaddr *)&remaddr, addrlen);		
 	  }
 	  
