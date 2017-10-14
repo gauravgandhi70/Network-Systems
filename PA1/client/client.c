@@ -59,7 +59,7 @@ void main(int argc, char *argv[])
   char key = 10;	
   memset(&packet,0,sizeof(packet));
   long int ACK = 0;
-  struct timeval timeout = {0,50000};
+  struct timeval timeout = {0,700000};
 	
  // Check for correct user input
   if(argc != 3)
