@@ -86,6 +86,8 @@ int main (int argc, char **argv)
  char type[40] = {0};
  int met = 0;
  bool keep_alive= false;
+ time_t rawtime;
+ time(&rawtime);
  struct timeval timeout;
 
  //Create a socket for the soclet
@@ -121,23 +123,33 @@ int trial = 0;
   //accept a connection
   connfd = accept (listenfd, (struct sockaddr *) &cliaddr, &clilen);
   
+  
   printf("%s\n","Received request...");
 #if FORKING
   if ( (childpid = fork ()) == 0 ) {//if it’s 0, it’s child process
 #endif
-  //printf("\n\n\ntrial - %d PID - %d\n\n\n",trial,getpid());
-  trial = 100;
+  
+  //close (listenfd);
   printf ("%s\n","Child created for dealing with client requests");
 
-  //close listening socket
-  
-  while ( (n = recv(connfd, buf, MAXLINE,0)) > 0) 
+   //gettimeoftheday(&timestart,NULL);
+   timeout.tv_sec = conf.alive_timeout;
+   setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
+  while ( (n = recv(connfd, buf, MAXLINE,0)) > 0 ) 
   {
-   //printf("In While\n");
+   //printf("Connfd - %d\n",connfd);
    char *keepa = strstr(buf,"Connection: keep-alive");
    if(keepa)
    {
-	keep_alive = true;
+	timeout.tv_sec = conf.alive_timeout;
+        setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
+   }
+   else
+   {
+	timeout.tv_sec = 0;
+   	setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
    }
    bzero(length,sizeof(length));
    bzero(method,sizeof(method));
@@ -156,7 +168,8 @@ int trial = 0;
 	write(connfd, length,strlen(length));
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,"<html><body>400 Bad Request Reason: Invalid HTTP Version :<<request method>></body></html>",strlen("<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>"));
-	exit(-1);
+
+	continue;
    } 
    strcpy(root,"./www");
    	
@@ -174,7 +187,7 @@ int trial = 0;
     
     if(!fptr)
     {
-	printf("File Can Not be Opened in Process - %d\n",getpid());
+	//printf("File Can Not be Opened in Process - %d\n",getpid());
 	strcat(version," 404 Not Found\n");	
 	write(connfd, version, strlen(version));
 	strcpy(length,"Content-length: ");
@@ -184,7 +197,7 @@ int trial = 0;
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,"<html><body>404 Not Found Reason URL does not exist :<<requested url>></body></html>",strlen("<html><body>404 Not Found Reason URL does not exist :<<requested url>></body></html>"));
 
-	exit(-1);
+        continue;
     }	
     else
 	printf("%s Opened IN process %d\n",root,getpid());		
@@ -214,6 +227,7 @@ int trial = 0;
 			}
 			if(i == conf.feature_counter-1)
 			{		
+				printf("501 Not Implemented\n");
 				strcat(version," 501 Not Implemented\n");	
 				write(connfd, version, strlen(version));	
 				//write(connfd, "HTTP/1.1 501 Not Implemented\n", strlen("HTTP/1.1 501 Not Implemented"));
@@ -224,7 +238,8 @@ int trial = 0;
 				write(connfd, "Content-Type: html\n\n", 20); 
 				write(connfd,"<html><body>501 Not Implemented <<error type>>: <<requested data>></body></html>",strlen("<html><body>501 Not Implemented <<error type>>: <<requested data>></body></html>"));
 
-				exit(-1);			
+		
+				continue;			
 			}
 			
 		}
@@ -274,9 +289,9 @@ int trial = 0;
   
   
 
-   if (n < 0)
-    printf("%s\n", "Read error");
    
+    printf("%s for %d\n", "Timeout, Connection Closed",getpid());
+   	
     exit(0);
 #if FORKING
   }
