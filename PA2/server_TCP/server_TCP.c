@@ -26,10 +26,12 @@ struct configure{
 	 int port;
 	 int feature_counter;
 	 int alive_timeout;
+	 int post_content_length;
+
 }conf = {0};
 int8_t * itoa(int32_t num, int8_t *str, int32_t base);      //Function definition for converting data from integer to ascii string
 void reverse(int8_t *str, int32_t length);                             //Function to perform reverse of the string
-
+void postdata_parser(char *buf,char *postdata);
 
 void find_case(char *met,char *url, char *ver);
 
@@ -78,13 +80,14 @@ int main (int argc, char **argv)
  pid_t childpid;
  socklen_t clilen;
  char buf[MAXLINE];
+ char postdata[10000] = {0};
  struct sockaddr_in cliaddr, servaddr;
  char method[10] = {0},url[100] = {0}, version[100] = {0};
  FILE *fptr = NULL;
  char root[50] = {0};
  char content[20] = {0};  
  char type[40] = {0};
- int met = 0;
+ int met = 100;
  bool keep_alive= false;
  time_t rawtime;
  time(&rawtime);
@@ -118,13 +121,13 @@ int main (int argc, char **argv)
  printf("%s\n","Server running...waiting for connections.");
 int trial = 0;
  for ( ; ; ) {
-
-	 clilen = sizeof(cliaddr);
+   
+   clilen = sizeof(cliaddr);
   //accept a connection
   connfd = accept (listenfd, (struct sockaddr *) &cliaddr, &clilen);
-  
-  
-  printf("%s\n","Received request...");
+  printf("\nSocket %d Opened \n ",cliaddr.sin_port);
+   
+  //printf("%s\n","Received request...");
 #if FORKING
   if ( (childpid = fork ()) == 0 ) {//if it’s 0, it’s child process
 #endif
@@ -133,13 +136,13 @@ int trial = 0;
   printf ("%s\n","Child created for dealing with client requests");
 
    //gettimeoftheday(&timestart,NULL);
-   timeout.tv_sec = conf.alive_timeout;
-   setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
-
+  
   while ( (n = recv(connfd, buf, MAXLINE,0)) > 0 ) 
   {
-   //printf("Connfd - %d\n",connfd);
+
+   //printf("%s\n",buf);
    char *keepa = strstr(buf,"Connection: keep-alive");
+   
    if(keepa)
    {
 	timeout.tv_sec = conf.alive_timeout;
@@ -151,6 +154,7 @@ int trial = 0;
 	timeout.tv_sec = 0;
    	setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
    }
+   
    bzero(length,sizeof(length));
    bzero(method,sizeof(method));
    bzero(url,sizeof(url));
@@ -158,22 +162,64 @@ int trial = 0;
 
    int i =1;
    sscanf(buf,"%s %s %s",method,url,version); 
-   //printf("URL - %s\n",url);
+
+   printf("\n\nRecieved New Request \n");
+  
+  
+   if(strcmp(method,"POST")==0)
+   {
+   	postdata_parser(buf,postdata);
+   }
+   else if(strcmp(method,"GET")!=0)	
+   {
+		char err[200] = {0};
+		printf("400 Bad Request: Wrong method %s\n",method);
+		strcat(version," 400 Bad Request\n");	
+		write(connfd, version, strlen(version));	
+		sprintf(err,"<html><body><font size = 6><b>400 Bad Request: Invalid Method: %s<font></body></html>",method);
+		strcpy(length,"Content-length: ");
+		itoa (strlen(err), status, 10 );
+		strcat(length,status);
+		write(connfd, length, strlen(length));
+		write(connfd, "Content-Type: html\n\n", 20); 
+		write(connfd,err,strlen(err));
+		if(keepa){continue;}
+		else 
+		{
+		 printf("%d Socket Closed\n",cliaddr.sin_port);
+		 close(connfd);
+		 exit(0);
+		}
+
+     }
+
+   bzero(buf,sizeof(buf));
+   
    if(strcmp(version,"HTTP/1.0") && strcmp(version,"HTTP/1.1"))
    {
+	char err[200] = {0};
+	printf("400 Bad Request: %s\n",version);
 	write(connfd, "HTTP/1.1 400 Bad Request\n", strlen("HTTP/1.1 400 Bad Request"));
 	strcpy(length,"Content-length: ");
-	itoa (strlen("<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>"), status, 10 );
+	sprintf(err,"<html><body><font size =6><b>400 Bad Request Reason: Invalid HTTP Version %s<b><font></body></html>",version);
+	itoa (strlen(err), status, 10 );
 	strcat(length,status);
 	write(connfd, length,strlen(length));
 	write(connfd, "Content-Type: html\n\n", 20); 
-	write(connfd,"<html><body>400 Bad Request Reason: Invalid HTTP Version :<<request method>></body></html>",strlen("<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>"));
+	write(connfd,err,strlen(err));
+	
+	if(keepa){continue;}
+	else 
+	{
+		 printf("%d Socket Closed\n",cliaddr.sin_port);
+		 close(connfd);
+		 exit(0);
+	}
 
-	continue;
    } 
    strcpy(root,"./www");
    	
-   if(strcmp(url,"/") == 0)
+   if(strcmp(url,"/") == 0 || strcmp(url,"/index.htm") == 0)
    {
    	strcat(root,"/index.html");
         fptr = fopen(root,"rb");
@@ -187,20 +233,27 @@ int trial = 0;
     
     if(!fptr)
     {
-	//printf("File Can Not be Opened in Process - %d\n",getpid());
+	char err[200] = {0};
+	printf("404 Not Found: %s\n",url);
 	strcat(version," 404 Not Found\n");	
-	write(connfd, version, strlen(version));
+	write(connfd, "HTTP/1.1 404 Not Found\n", strlen(version));
 	strcpy(length,"Content-length: ");
-	itoa (strlen("<html><body>404 Not Found Reason URL does not exist :<<requested url>></body></html>"), status, 10 );
+        sprintf(err,"<html><body><font size = 6>404 Not Found Reason URL does not exist: %s <font></body></html>",url);
+	itoa (strlen(err), status,10);
 	strcat(length,status);
-	//write(connfd, length,strlen(length));
+	write(connfd, length, strlen(length));
 	write(connfd, "Content-Type: html\n\n", 20); 
-	write(connfd,"<html><body>404 Not Found Reason URL does not exist :<<requested url>></body></html>",strlen("<html><body>404 Not Found Reason URL does not exist :<<requested url>></body></html>"));
-
-        continue;
+	write(connfd,err,strlen(err));
+	if(keepa){continue;}
+	else 
+	{
+		 printf("%d Socket Closed\n",cliaddr.sin_port);
+		 close(connfd);
+		 exit(0);
+	}
     }	
     else
-	printf("%s Opened IN process %d\n",root,getpid());		
+	printf("%s Opened in Socket %d\n",root,cliaddr.sin_port);		
 
 
    	char *lp = url;
@@ -220,6 +273,7 @@ int trial = 0;
 	
 		for(int i=0;i<conf.feature_counter;i++)
 		{
+			met = 100;
 			if(strcmp(content,conf.content[i]) == 0)
 			{
 				met = i;
@@ -227,24 +281,38 @@ int trial = 0;
 			}
 			if(i == conf.feature_counter-1)
 			{		
-				printf("501 Not Implemented\n");
-				strcat(version," 501 Not Implemented\n");	
-				write(connfd, version, strlen(version));	
-				//write(connfd, "HTTP/1.1 501 Not Implemented\n", strlen("HTTP/1.1 501 Not Implemented"));
-				strcpy(length,"Content-length: ");
-				itoa (strlen("<html><body>501 Not Implemented <<error type>>: <<requested data>></body></html>"), status, 10 );
-				strcat(length,status);
+				char err[200] = {0};
 				
+				strcat(version," 501 Not Implemented\n");	
+				write(connfd, version, strlen(version));
+				sprintf(err,"<html><body><font size = 6><b>501 Not Implemented : %s <font></body></html>",content);
+	
+				strcpy(length,"Content-length: ");
+				itoa (strlen(err), status, 10 );
+				strcat(length,status);
+				write(connfd, length, strlen(length));
 				write(connfd, "Content-Type: html\n\n", 20); 
-				write(connfd,"<html><body>501 Not Implemented <<error type>>: <<requested data>></body></html>",strlen("<html><body>501 Not Implemented <<error type>>: <<requested data>></body></html>"));
+				
+				write(connfd,err,strlen(err));
 
-		
-				continue;			
+				
+				break;			
 			}
 			
 		}
-	       
-		
+                
+	        if(met == 100)
+		{
+		 printf("501 Not Implemented: %s\n",content);
+		 continue;
+		}  
+		else if(met == 100 && keepa == NULL) 
+		{
+			 printf("%d Socket Closed\n",cliaddr.sin_port);
+			 close(connfd);
+			 exit(0);
+
+		}
 		fseek(fptr,0,SEEK_END);
 		size_t file_size=ftell(fptr);
 		fseek(fptr,0,SEEK_SET);
@@ -253,33 +321,159 @@ int trial = 0;
 		strcat(length,status);
 		strcat(length,"\n");
 		write(connfd, "HTTP/1.1 200 Document Follows\n\n", strlen("HTTP/1.1 200 Document Follows\n"));
-		printf("HTTP/1.1 200 Document Follows\n");
+		printf("Return Header: \nHTTP/1.1 200 Document Follows\n");
+		write(connfd, length,strlen(length));
+		printf("%s",length);
+		strcpy(type,"Content-Type: ");
+		strcat(type,conf.type[met]);
+		printf("%s\n",type);
+		strcat(type,"\n\n");
+		
+		if(keepa)
+		{	
+			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+		}
+		else
+		{
+			write(connfd,"Connection: Close\n",strlen("Connection: Close"));
+		}
+		write(connfd,type,strlen(type)); 
+		
+		
+		char *c = (char*)malloc(file_size);
+		if(c)
+		{
+		fread(c,1,file_size, fptr);
+		write(connfd,c,file_size);
+		}
+		else
+		{
+			char err[200] = {0};
+			printf("500 Internal Server Error: cannot allocate memory\n");
+			write(connfd, "HTTP/1.1 500 Internal Server Error\n", strlen("HTTP/1.1 HTTP/1.1 500 Internal Server Error: cannot allocate memory"));
+			strcpy(length,"Content-length: ");
+			sprintf(err,"<html><body><font size =6><b>HTTP/1.1 500 Internal Server Error: cannot allocate memory <b><font></body></html>");
+			itoa (strlen(err), status, 10 );
+			strcat(length,status);
+			write(connfd, length,strlen(length));
+			write(connfd, "Content-Type: html\n\n", 20); 
+			write(connfd,err,strlen(err));
+
+		}
+		free(c);
+		if(keepa == NULL)
+		{
+			 printf("%d Socket Closed\n",cliaddr.sin_port);
+			 close(connfd);
+			 exit(0);
+		}
+
+		
+	}
+	else if(strcmp(method,"POST") == 0)
+	{
+		met = 100;
+		for(int i=0;i<conf.feature_counter;i++)
+		{
+			if(strcmp(content,conf.content[i]) == 0)
+			{
+				met = i;
+				break;
+			}
+			if(i == conf.feature_counter-1)
+			{		
+				char err[200] = {0};
+				printf("501 Not Implemented: %s\n",content);
+				strcat(version," 501 Not Implemented\n");	
+				write(connfd, version, strlen(version));
+				sprintf(err,"<html><body><font size = 6><b>501 Not Implemented : %s <font></body></html>",content);
+	
+				strcpy(length,"Content-length: ");
+				itoa (strlen(err), status, 10 );
+				strcat(length,status);
+				write(connfd, length, strlen(length));
+				write(connfd, "Content-Type: html\n\n", 20); 
+				
+				write(connfd,err,strlen(err));
+
+				
+				break;			
+			}
+			
+		}
+                
+	        if(met == 100 && keepa)
+		{
+		 continue;
+		}  
+		else if(met == 100 && keepa == NULL) 
+		{
+			 printf("%d Socket Closed\n",cliaddr.sin_port);
+			 close(connfd);
+			 exit(0);
+
+		}
+
+		fseek(fptr,0,SEEK_END);
+		size_t file_size=ftell(fptr);
+		fseek(fptr,0,SEEK_SET);
+		strcpy(length,"Content-length: ");
+		itoa (file_size, status, 10 );
+		strcat(length,status);
+		strcat(length,"\n");
+
+		write(connfd, "HTTP/1.1 200 OK\n", strlen("HTTP/1.1 200 OK\n"));
+		printf("POST HTTP/1.1 200 OK\n");
 		write(connfd, length,strlen(length));
 		printf("%s",length);
 		strcpy(type,"Content-Type: ");
 		strcat(type,conf.type[met]);
 		strcat(type,"\n\n");
-		write(connfd,type,strlen(type)); 
 		printf("%s",type);
-		
-		
-		char c[1000000] = {0};
-		fread(c,1,1000000, fptr);
-		write(connfd,c,file_size);
-		
-	}
-	else	
-	{
-		printf("400 Bad Request \n");
-		strcat(version," 400 Bad Request\n");	
-		write(connfd, version, strlen(version));	
-		//write(connfd, "HTTP/1.1 400 Bad Request\n", strlen("HTTP/1.1 400 Bad Request"));
-		strcpy(length,"Content-length: ");
-		itoa (strlen("<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>"), status, 10 );
-		strcat(length,status);
-		//write(connfd, length,strlen(length));
-		write(connfd, "Content-Type: html\n\n", 20); 
-		write(connfd,"<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>",strlen("<html><body>400 Bad Request Reason: Invalid Method :<<request method>></body></html>"));
+		if(keepa)
+		{
+			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive\n"));
+		}
+		else
+		{
+			write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+		}
+		write(connfd,type,strlen(type)); 
+		write(connfd, length, strlen(length));
+		printf("%s",type);
+		char *d = (char*)malloc(strlen(postdata)+32);
+		sprintf(d,"<html><body><pre><h1>%s</h1></pre>",postdata);
+		write(connfd,d,strlen(d)); 
+		free(d);
+		char *c = (char*)malloc(file_size);
+		if(c)
+		{
+			fread(c,1,file_size, fptr);
+			write(connfd,c,file_size);
+		}
+		else
+		{
+			char err[200] = {0};
+			printf("500 Internal Server Error: cannot allocate memory\n");
+			write(connfd, "HTTP/1.1 500 Internal Server Error\n", strlen("HTTP/1.1 HTTP/1.1 500 Internal Server Error: cannot allocate memory"));
+			strcpy(length,"Content-length: ");
+			sprintf(err,"<html><body><font size =6><b>HTTP/1.1 500 Internal Server Error: cannot allocate memory <b><font></body></html>");
+			itoa (strlen(err), status, 10 );
+			strcat(length,status);
+			write(connfd, length,strlen(length));
+			write(connfd, "Content-Type: html\n\n", 20); 
+			write(connfd,err,strlen(err));
+
+		}
+		free(c);
+
+		if(keepa == NULL)
+		{
+			 printf("%d Socket Closed\n",cliaddr.sin_port);
+			 close(connfd);
+			 exit(0);
+		}
+
 	}			
 		
   }
@@ -290,17 +484,34 @@ int trial = 0;
   
 
    
-    printf("%s for %d\n", "Timeout, Connection Closed",getpid());
-   	
-    exit(0);
+    printf("%s for Socket %d\n", "Timeout, Connection Closed",cliaddr.sin_port);
+     exit(0);
+    
 #if FORKING
   }
 	#endif
  close(connfd);
  }
  close (listenfd);
+
 }
 
+void postdata_parser(char *buf,char *postdata)
+{
+	char *c = strstr(buf,"Content-Length:");
+	sscanf(c,"%*s %d",&conf.post_content_length);
+	int n =0;
+	while(n<2)
+	{
+		if(*c == '\n')
+		{
+		  n++;
+		}
+		c++;
+	}
+	strcpy(postdata,c);
+	//printf("Parsed - %s Length - %d \n",*postdata,conf.post_content_length);
+}
 
 int8_t * itoa(int32_t num, int8_t *str, int32_t base)      //Function definition for converting data from integer to ascii string
 {
