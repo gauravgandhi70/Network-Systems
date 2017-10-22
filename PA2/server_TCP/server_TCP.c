@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <time.h>
+#include <signal.h>
 #define MAXLINE 4096 /*max text line length*/
 #define SERV_PORT 5000 /*port*/
 #define LISTENQ 8 /*maximum number of client connections*/
@@ -17,7 +18,7 @@ char status[200];
 char type[40];
 char data[1024];
 char length[40];
-	
+int listen_global;	
 struct configure{
 	 char root[50];
 	 char content[10][100];
@@ -32,7 +33,12 @@ struct configure{
 int8_t * itoa(int32_t num, int8_t *str, int32_t base);      //Function definition for converting data from integer to ascii string
 void reverse(int8_t *str, int32_t length);                             //Function to perform reverse of the string
 void postdata_parser(char *buf,char *postdata);
-
+void cleanup_routine(int l)
+{
+	printf("Closing the listenfd socket\n");
+	close(listen_global);
+	exit(0);
+}
 void find_case(char *met,char *url, char *ver);
 
 void read_conf_file(void)
@@ -92,19 +98,22 @@ int main (int argc, char **argv)
  time_t rawtime;
  time(&rawtime);
  struct timeval timeout;
-
+ 
+ signal(SIGINT,cleanup_routine);
  //Create a socket for the soclet
  //If sockfd<0 there was an error in the creation of the socket
   
+ // Reading the conf file before opening the listening socket
  read_conf_file();
    
-  
+ // Open listening TCP socket 
  if ((listenfd = socket (AF_INET, SOCK_STREAM, 0)) <0)
  {
   perror("Problem in creating the socket");
   exit(2);
  }
-
+  listen_global = listenfd;
+  // Set socket properties to reuse the port
   setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
   
  //preparation of the socket address					
@@ -119,7 +128,7 @@ int main (int argc, char **argv)
  listen (listenfd, LISTENQ);
 
  printf("%s\n","Server running...waiting for connections.");
-int trial = 0;
+
  for ( ; ; ) {
    
    clilen = sizeof(cliaddr);
@@ -127,24 +136,23 @@ int trial = 0;
   connfd = accept (listenfd, (struct sockaddr *) &cliaddr, &clilen);
   printf("\nSocket %d Opened \n ",cliaddr.sin_port);
    
-  //printf("%s\n","Received request...");
+  
 #if FORKING
   if ( (childpid = fork ()) == 0 ) {//if it’s 0, it’s child process
 #endif
   
-  //close (listenfd);
+  close (listenfd);
   printf ("%s\n","Child created for dealing with client requests");
 
-   //gettimeoftheday(&timestart,NULL);
   
   while ( (n = recv(connfd, buf, MAXLINE,0)) > 0 ) 
   {
-
-   //printf("%s\n",buf);
+   // Check if the connection alive is there or not
    char *keepa = strstr(buf,"Connection: keep-alive");
    
    if(keepa)
    {
+	// if keep alive is there then set the socket timeout to alive_timeout
 	timeout.tv_sec = conf.alive_timeout;
         setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
@@ -154,20 +162,23 @@ int trial = 0;
 	timeout.tv_sec = 0;
    	setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
    }
-   
+   // lear all the buffers
    bzero(length,sizeof(length));
    bzero(method,sizeof(method));
    bzero(url,sizeof(url));
    bzero(root,sizeof(root));
 
    int i =1;
+   // Read the method,url and version from the request
    sscanf(buf,"%s %s %s",method,url,version); 
 
-   printf("\n\nRecieved New Request \n");
+   
+   printf("\n\nRecieved New Request in Socket %d\n",cliaddr.sin_port);
   
-  
+  // If method is not either post or get then give error
    if(strcmp(method,"POST")==0)
    {
+	// Parse the data from the recived post request to get posted data 
    	postdata_parser(buf,postdata);
    }
    else if(strcmp(method,"GET")!=0)	
@@ -194,7 +205,7 @@ int trial = 0;
      }
 
    bzero(buf,sizeof(buf));
-   
+   // Check if the HTTP version is correct or not 
    if(strcmp(version,"HTTP/1.0") && strcmp(version,"HTTP/1.1"))
    {
 	char err[200] = {0};
@@ -208,6 +219,7 @@ int trial = 0;
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,err,strlen(err));
 	
+    // If keep alive is there then continue otherwise close the socket
 	if(keepa){continue;}
 	else 
 	{
@@ -217,8 +229,9 @@ int trial = 0;
 	}
 
    } 
+
+    // Make the entire path from the requested url
    strcpy(root,"./www");
-   	
    if(strcmp(url,"/") == 0 || strcmp(url,"/index.htm") == 0)
    {
    	strcat(root,"/index.html");
@@ -230,7 +243,8 @@ int trial = 0;
         fptr = fopen(root,"rb");
 	
     }
-    
+
+    // CHeck if the file exists, if not then give 400 error
     if(!fptr)
     {
 	char err[200] = {0};
@@ -244,6 +258,8 @@ int trial = 0;
 	write(connfd, length, strlen(length));
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,err,strlen(err));
+	
+	// If keep alive is there then continue otherwise close the socket
 	if(keepa){continue;}
 	else 
 	{
@@ -252,10 +268,10 @@ int trial = 0;
 		 exit(0);
 	}
     }	
-    else
-	printf("%s Opened in Socket %d\n",root,cliaddr.sin_port);		
+    else 
+	printf("%s Opened\n",root);		
 
-
+	// Find the extension of the file and store it in the content
    	char *lp = url;
 	while(*lp != '\0')
         {
@@ -265,12 +281,13 @@ int trial = 0;
 	{
 	     lp--;	
 	}
-	
         strcpy(content,lp);
 	
+
+	// Check for the GET or POST method
    	if(strcmp(method,"GET") == 0)
 	{
-	
+		// Find the extension of the file from the conf file
 		for(int i=0;i<conf.feature_counter;i++)
 		{
 			met = 100;
@@ -279,6 +296,7 @@ int trial = 0;
 				met = i;
 				break;
 			}
+			// Give error if the extension is not found in the conf file
 			if(i == conf.feature_counter-1)
 			{		
 				char err[200] = {0};
@@ -300,8 +318,8 @@ int trial = 0;
 			}
 			
 		}
-                
-	        if(met == 100)
+                // If keep alive is there then continue otherwise close the socket
+	        if(met == 100 && keepa != NULL)
 		{
 		 printf("501 Not Implemented: %s\n",content);
 		 continue;
@@ -313,9 +331,13 @@ int trial = 0;
 			 exit(0);
 
 		}
+		
+		// After extension and content type are matched, calculate the size of the file
 		fseek(fptr,0,SEEK_END);
 		size_t file_size=ftell(fptr);
 		fseek(fptr,0,SEEK_SET);
+
+		// Prepare the header with Content length, content type
 		strcpy(length,"Content-length: ");
 		itoa (file_size, status, 10 );
 		strcat(length,status);
@@ -328,7 +350,8 @@ int trial = 0;
 		strcat(type,conf.type[met]);
 		printf("%s\n",type);
 		strcat(type,"\n\n");
-		
+
+		// If keep alive is there then continue otherwise close the socket
 		if(keepa)
 		{	
 			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
@@ -339,12 +362,13 @@ int trial = 0;
 		}
 		write(connfd,type,strlen(type)); 
 		
-		
+		// Allocate memory for the file on the heap and if it fails then give internal server error
 		char *c = (char*)malloc(file_size);
 		if(c)
 		{
 		fread(c,1,file_size, fptr);
 		write(connfd,c,file_size);
+		free(c);
 		}
 		else
 		{
@@ -360,7 +384,8 @@ int trial = 0;
 			write(connfd,err,strlen(err));
 
 		}
-		free(c);
+		
+		// If keep alive is there then continue otherwise close the socket
 		if(keepa == NULL)
 		{
 			 printf("%d Socket Closed\n",cliaddr.sin_port);
@@ -373,6 +398,7 @@ int trial = 0;
 	else if(strcmp(method,"POST") == 0)
 	{
 		met = 100;
+		// Match the content type with extension in the conf file
 		for(int i=0;i<conf.feature_counter;i++)
 		{
 			if(strcmp(content,conf.content[i]) == 0)
@@ -380,6 +406,7 @@ int trial = 0;
 				met = i;
 				break;
 			}
+			// If content is not supported then give error
 			if(i == conf.feature_counter-1)
 			{		
 				char err[200] = {0};
@@ -401,7 +428,7 @@ int trial = 0;
 			}
 			
 		}
-                
+                // If keep alive is there then continue otherwise close the socket
 	        if(met == 100 && keepa)
 		{
 		 continue;
@@ -413,15 +440,19 @@ int trial = 0;
 			 exit(0);
 
 		}
-
+		
+		// After extension and content type are matched, calculate the size of the file
 		fseek(fptr,0,SEEK_END);
 		size_t file_size=ftell(fptr);
 		fseek(fptr,0,SEEK_SET);
+
+		// Prepare the header with Content length, content type
 		strcpy(length,"Content-length: ");
 		itoa (file_size, status, 10 );
 		strcat(length,status);
 		strcat(length,"\n");
 
+		
 		write(connfd, "HTTP/1.1 200 OK\n", strlen("HTTP/1.1 200 OK\n"));
 		printf("POST HTTP/1.1 200 OK\n");
 		write(connfd, length,strlen(length));
@@ -430,6 +461,9 @@ int trial = 0;
 		strcat(type,conf.type[met]);
 		strcat(type,"\n\n");
 		printf("%s",type);
+
+		// If keep alive is there then continue otherwise close the socket
+
 		if(keepa)
 		{
 			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive\n"));
@@ -445,11 +479,14 @@ int trial = 0;
 		sprintf(d,"<html><body><pre><h1>%s</h1></pre>",postdata);
 		write(connfd,d,strlen(d)); 
 		free(d);
+		
+		// Allocate memory for the file on the heap and if it fails then give internal server error
 		char *c = (char*)malloc(file_size);
 		if(c)
 		{
 			fread(c,1,file_size, fptr);
 			write(connfd,c,file_size);
+			free(c);
 		}
 		else
 		{
@@ -465,8 +502,8 @@ int trial = 0;
 			write(connfd,err,strlen(err));
 
 		}
-		free(c);
-
+		
+		// If keep alive is there then continue otherwise close the socket
 		if(keepa == NULL)
 		{
 			 printf("%d Socket Closed\n",cliaddr.sin_port);
@@ -492,10 +529,10 @@ int trial = 0;
 	#endif
  close(connfd);
  }
- close (listenfd);
+ 
 
 }
-
+// Function to parse the post request, it returns the post data from the request
 void postdata_parser(char *buf,char *postdata)
 {
 	char *c = strstr(buf,"Content-Length:");
@@ -510,7 +547,7 @@ void postdata_parser(char *buf,char *postdata)
 		c++;
 	}
 	strcpy(postdata,c);
-	//printf("Parsed - %s Length - %d \n",*postdata,conf.post_content_length);
+	
 }
 
 int8_t * itoa(int32_t num, int8_t *str, int32_t base)      //Function definition for converting data from integer to ascii string
