@@ -141,7 +141,7 @@ int main (int argc, char **argv)
   if ( (childpid = fork ()) == 0 ) {//if it’s 0, it’s child process
 #endif
   
-  close (listenfd);
+  //close (listenfd);
   printf ("%s\n","Child created for dealing with client requests");
 
   
@@ -191,7 +191,17 @@ int main (int argc, char **argv)
 		strcpy(length,"Content-length: ");
 		itoa (strlen(err), status, 10 );
 		strcat(length,status);
+		strcat(length,"\n");
 		write(connfd, length, strlen(length));
+		if(keepa)
+		{	
+			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+		}
+		else
+		{
+			write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+		}
+		
 		write(connfd, "Content-Type: html\n\n", 20); 
 		write(connfd,err,strlen(err));
 		if(keepa){continue;}
@@ -215,7 +225,17 @@ int main (int argc, char **argv)
 	sprintf(err,"<html><body><font size =6><b>400 Bad Request Reason: Invalid HTTP Version %s<b><font></body></html>",version);
 	itoa (strlen(err), status, 10 );
 	strcat(length,status);
+	strcat(length,"\n");
 	write(connfd, length,strlen(length));
+	if(keepa)
+	{	
+		write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+	}
+	else
+	{
+		write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+	}
+	
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,err,strlen(err));
 	
@@ -232,7 +252,7 @@ int main (int argc, char **argv)
 
     // Make the entire path from the requested url
    strcpy(root,"./www");
-   if(strcmp(url,"/") == 0 || strcmp(url,"/index.htm") == 0)
+   if(strcmp(url,"/") == 0 )//|| strcmp(url,"/index.htm"))
    {
    	strcat(root,"/index.html");
         fptr = fopen(root,"rb");
@@ -255,7 +275,17 @@ int main (int argc, char **argv)
         sprintf(err,"<html><body><font size = 6>404 Not Found Reason URL does not exist: %s <font></body></html>",url);
 	itoa (strlen(err), status,10);
 	strcat(length,status);
+	strcat(length,"\n");
 	write(connfd, length, strlen(length));
+	if(keepa)
+	{	
+		write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+	}
+	else
+	{
+		write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+	}
+
 	write(connfd, "Content-Type: html\n\n", 20); 
 	write(connfd,err,strlen(err));
 	
@@ -308,7 +338,17 @@ int main (int argc, char **argv)
 				strcpy(length,"Content-length: ");
 				itoa (strlen(err), status, 10 );
 				strcat(length,status);
+				strcat(length,"\n");
 				write(connfd, length, strlen(length));
+				if(keepa)
+				{	
+					write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+				}
+				else
+				{
+					write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+				}	
+
 				write(connfd, "Content-Type: html\n\n", 20); 
 				
 				write(connfd,err,strlen(err));
@@ -358,7 +398,7 @@ int main (int argc, char **argv)
 		}
 		else
 		{
-			write(connfd,"Connection: Close\n",strlen("Connection: Close"));
+			write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
 		}
 		write(connfd,type,strlen(type)); 
 		
@@ -380,6 +420,16 @@ int main (int argc, char **argv)
 			itoa (strlen(err), status, 10 );
 			strcat(length,status);
 			write(connfd, length,strlen(length));
+		
+			if(keepa)
+			{	
+				write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+			}
+			else
+			{
+				write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+			}
+
 			write(connfd, "Content-Type: html\n\n", 20); 
 			write(connfd,err,strlen(err));
 
@@ -418,6 +468,7 @@ int main (int argc, char **argv)
 				strcpy(length,"Content-length: ");
 				itoa (strlen(err), status, 10 );
 				strcat(length,status);
+				strcat(length,"\n");
 				write(connfd, length, strlen(length));
 				write(connfd, "Content-Type: html\n\n", 20); 
 				
@@ -497,6 +548,16 @@ int main (int argc, char **argv)
 			sprintf(err,"<html><body><font size =6><b>HTTP/1.1 500 Internal Server Error: cannot allocate memory <b><font></body></html>");
 			itoa (strlen(err), status, 10 );
 			strcat(length,status);
+			strcat(length,"\n");
+			if(keepa)
+			{	
+			write(connfd,"Connection: Keep-alive\n",strlen("Connection: Keep-alive	"));
+			}
+			else
+			{
+			write(connfd,"Connection: Close\n",strlen("Connection: Close\n"));
+			}
+
 			write(connfd, length,strlen(length));
 			write(connfd, "Content-Type: html\n\n", 20); 
 			write(connfd,err,strlen(err));
