@@ -3,8 +3,8 @@
 CC=gcc
 all: server
 
-client: server.c
-	$(CC) server.c -o server
+server: server.c
+	$(CC) server.c -lm -o server
 
 clean:
 	rm -f server

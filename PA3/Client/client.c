@@ -20,10 +20,16 @@ typedef struct{
 }packet_t;
 
 typedef struct{
+		int serv_no;
 		int total_files;
-		char filename[30];
-		int file_slice[2];
+		char filename[100][30];
+		char file_slice[100][2];
 }list_t;
+
+typedef struct{
+		char packet_number[2];
+		long int packet_sizes[2];
+}get_t;
 struct configure{
 	 char root[50];
 	 char server[4][100];
@@ -35,6 +41,13 @@ struct configure{
 
 typedef enum{dfs1=0,dfs2,dfs3,dfs4}dfs_t;
 
+	char files[100][30] = {0};
+	int part_flag[100][5] = {0};	
+	int file_counter = 0;
+
+int tcp_socket[4] = {0};
+
+void lister(packet_t packet);
 void parse_config(char *filename)
 {
 	FILE *f;
@@ -66,7 +79,7 @@ void parse_config(char *filename)
 void main(int argc, char *argv[])
 {
 	
-  int tcp_socket[5], recvlen,md5 = 3,option = 1;
+  int recvlen,md5 = 3,option = 1;
   FILE *fptr;
   char inp[50],buf[BUFSIZE],rcv[BUFSIZE],err[50];
   char userinput[30] = {0}, ip[100]={0};
@@ -75,7 +88,8 @@ void main(int argc, char *argv[])
    int packet_combo[4][4][2] = {{{3,0},{0,1},{1,2},{2,3}},{{0,1},{1,2},{2,3},{3,0}},{{1,2},{2,3},{3,0},{0,1}},{{2,3},{3,0},{0,1},{1,2}}};     
  
   packet_t packet;
-  list_t
+
+
   char key = 10;	
   memset(&packet,0,sizeof(packet));
   long int ACK = 0;
@@ -129,7 +143,19 @@ void main(int argc, char *argv[])
 	  sprintf(username,"%s %s",conf.username,conf.password);
 	  
 	  sendto(tcp_socket[i],username, 100, 0, (struct sockaddr *)&dfs[i],sizeof(dfs[i]));
-	 
+	  int password_accepted = 0;
+	  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
+	  if(password_accepted)
+	  {
+		printf("\nLogin Successful\n");
+	  }
+	  else
+          {
+         	printf("Falied to Login, Password Not mactched \n");
+		exit(-1);
+	  } 
+   
+
 	 
 	}
   }    
@@ -163,6 +189,7 @@ void main(int argc, char *argv[])
 		}
 		else
 		{
+		     printf("command filename %s %s\n",packet.command,packet.filename);
 		     for(packet.file_slice = 0;packet.file_slice<4;packet.file_slice++)
 	               {
 			  
@@ -197,10 +224,14 @@ void main(int argc, char *argv[])
 			    for(int serv=0;serv<2;serv++)
 				
 			    {
-		         	printf("command filename %s %s\n",packet.command,packet.filename);
+		         	
 	
-			    	send(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&packet, sizeof(packet), MSG_NOSIGNAL);
-				   
+			    	int alive_server = send(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&packet, sizeof(packet), MSG_NOSIGNAL);
+				struct timeval timeout = {0,5000};
+				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+				//recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
+
+				//printf("Server%d sendto reply %d\n",packet_combo[md5][packet.file_slice][serv],alive_server);   
 				   for(long int j =0; j<packet.data_length ; j++)
 					{	
 						buf[j] ^= key;
@@ -209,11 +240,10 @@ void main(int argc, char *argv[])
 	 			    // Send the encrypted data
 				    send(tcp_socket[packet_combo[md5][packet.file_slice][serv]], buf, packet.data_length , MSG_NOSIGNAL);
 
-				struct timeval timeout = {0,5000};int alive_server;
-				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 				recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
 				timeout.tv_usec = 0;    
 				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
    
 	
 				
@@ -231,9 +261,116 @@ void main(int argc, char *argv[])
 
           }
 
+   	 else if(((strcmp(packet.command,"list")==0) )) 
+	 {	
+		lister(packet);
+		
+		printf("\n\nPrinting the List of files on all the servers... \n\n");
+		for(int i=0;i<file_counter;i++)
+		{
+			//printf("%d %s %d %d %d %d \n",i+1,files[i],part_flag[i][1],part_flag[i][2],part_flag[i][3],part_flag[i][4]);
+			if(part_flag[i][0] == 4)
+			{
+				printf("%d) %s\n",i+1,files[i]);
+			}
+			else
+			{
+				printf("%d) %s Incomplete\n ",i+1,files[i]);
+			}
+		}
+
+	 }
+
+	
+	  else if(strcmp(packet.command,"get") == 0 && (*(packet.filename) != '\0'))
+	  {
+		packet_t p = {0};
+		get_t getp={0};
+		strcpy(p.command,"list");
+		lister(p);
+		int rcv_part_flag[5] = {0};
+		for(int i =0;i<file_counter;i++)
+		{
+			if(strcmp(files[i],packet.filename)==0)
+			{
+				if(part_flag[i][0] == 4)
+				{
+					printf("File Exists\n");
+					//TODO Get the File here
+					char *filedata[4] = {0};
+					// recieve data size and packet number
+					for(int j=0;j<1;j++)
+					{
+						send(tcp_socket[j],&packet, sizeof(packet), MSG_NOSIGNAL);
+						recv(tcp_socket[j],&getp, sizeof(getp), MSG_NOSIGNAL);
+						printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
+					
+						struct timeval timeout = {2,0};
+						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
+					     for(int x = 0;x<2;x++)
+					     {
+
+						if(rcv_part_flag[getp.packet_number[x]] == 0){
+							filedata[getp.packet_number[x]] = (char*)malloc(getp.packet_sizes[x]);}
+
+						long int total_bytes = 0;			
+						while(total_bytes != getp.packet_sizes[x])
+						{
+
+				
+				
+							long int rcv = recv(tcp_socket[j],filedata[getp.packet_number[x]], getp.packet_sizes[x], 0);
+		
+							total_bytes += rcv; 
+			
+						    	if(rcv>0){		
+							// Decrypt the data
+							//for(long int j=0; j<rcv; j++)	
+							//{
+							//	recv_buf[j] ^= key; 
+							//}
+							// Write the data to the file
+						    	
+							}
+							else{perror("Not recieved");break;}
+						}
+							rcv_part_flag[getp.packet_number[x]] = 1;
+							if(total_bytes>0)
+								printf("Data Recieved %ld \n",total_bytes);
+							
 
 
-	  else if(strcmp(command,"exit")==0)
+				
+						
+
+					     }
+						timeout.tv_sec = 0;
+						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+						
+						if(rcv_part_flag[1]+rcv_part_flag[2]+rcv_part_flag[3]+rcv_part_flag[4] == 4){printf("File Recieved\n");break;}
+					}
+
+
+					// malloc that much memory
+					// recieve the data
+					//once entire file is recieved
+					// write file 
+				}
+				else
+				{
+					printf(" File Exist But Incomplete :  Servers Down\n");
+				}
+				break;
+			}
+			else if(i == file_counter-1)
+			{
+				printf("Incorrect Filename, File Doesnt Exist\n");
+			}
+		}
+ 		
+          }
+	  else if(strcmp(packet.command,"exit")==0)
 	  {
 		return;
 	  }
@@ -247,4 +384,75 @@ void main(int argc, char *argv[])
   } 
 
 
+}
+
+
+
+
+
+void lister(packet_t packet)
+{
+			list_t list[4] = {0};
+		printf("Lister Called\n");
+		for(int i=0;i<4;i++)
+		{
+			
+		char parts[20][4]={0};
+		send(tcp_socket[i],&packet, sizeof(packet), MSG_NOSIGNAL);
+
+		//struct timeval timeout = {0,5000};
+		//setsockopt(tcp_socket[0], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
+		
+
+		
+		long int rec;
+		rec = recv(tcp_socket[i],&list[i], sizeof(list), 0);
+		//printf("Files %d Recived list of %ld\n",list[i].total_files,rec);
+		
+
+		}
+		
+		bzero(files,300);
+		bzero(part_flag,sizeof(int)*500);
+		file_counter = 0;
+		for(int i=0;i<4;i++)
+		{
+			for(int j=0;j<list[i].total_files;j++)
+			{
+				for(int k=0;k<file_counter+1;k++)
+				{
+					if(strcmp(list[i].filename[j],files[k]) == 0)
+					{
+						part_flag[k][list[i].file_slice[j][0]-48] = 1;	
+						part_flag[k][list[i].file_slice[j][1]-48] = 1;
+						break;
+						
+					}
+					else if(k == file_counter)
+					{
+						strcpy(files[file_counter],list[i].filename[j]);
+						//printf("%d %d \n",list[i].file_slice[j][0]-48,list[i].file_slice[j][1]-48);
+						part_flag[file_counter][list[i].file_slice[j][0]-48] = 1;	
+						part_flag[file_counter][list[i].file_slice[j][1]-48] = 1;
+						file_counter++;
+				
+						break;
+					}
+	
+				}
+
+			}
+					
+			
+		}
+
+
+	   for(int i=0;i<file_counter;i++)
+	   {
+			part_flag[i][0] = 0;
+			part_flag[i][0] = (part_flag[i][1]+part_flag[i][2]+part_flag[i][3]+part_flag[i][4]);
+           }
+	
+			 
 }
