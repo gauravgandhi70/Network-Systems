@@ -189,10 +189,6 @@ void main(int argc, char *argv[])
 		}
 		else
 		{
-		     printf("command filename %s %s\n",packet.command,packet.filename);
-		     for(packet.file_slice = 0;packet.file_slice<4;packet.file_slice++)
-	               {
-			  
 			fseek(fptr,0,SEEK_END);
   			size_t file_size=ftell(fptr);
   			fseek(fptr,0,SEEK_SET);
@@ -203,8 +199,11 @@ void main(int argc, char *argv[])
 			f = f/4 ;
  			int fileSize_OneServer = round(f);
 			printf("float %f roundoff %d\n",f,fileSize_OneServer);
-			
-			
+
+		     printf("command filename %s %s\n",packet.command,packet.filename);
+		     for(packet.file_slice = 0;packet.file_slice<4;packet.file_slice++)
+	               {
+			  	
 	 	
 			char *buf = NULL;
 
@@ -219,7 +218,9 @@ void main(int argc, char *argv[])
 				buf = (char*)malloc(packet.data_length);
 			}
 				
-			printf("File Slice - %d Size -%ld \n",packet.file_slice,packet.data_length);
+			fread(buf,1,packet.data_length,fptr);
+			
+			printf("File Slice - %d Size -%ld\n",packet.file_slice,packet.data_length);
 
 			    for(int serv=0;serv<2;serv++)
 				
@@ -231,12 +232,13 @@ void main(int argc, char *argv[])
 				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 				//recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
 
-				//printf("Server%d sendto reply %d\n",packet_combo[md5][packet.file_slice][serv],alive_server);   
+				//printf("Server%d sendto reply %d\n",packet_combo[md5][packet.file_slice][serv],alive_server); 
+				if(serv == 0){  
 				   for(long int j =0; j<packet.data_length ; j++)
 					{	
 						buf[j] ^= key;
 					}
-				    
+				    }
 	 			    // Send the encrypted data
 				    send(tcp_socket[packet_combo[md5][packet.file_slice][serv]], buf, packet.data_length , MSG_NOSIGNAL);
 
@@ -244,14 +246,32 @@ void main(int argc, char *argv[])
 				timeout.tv_usec = 0;    
 				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
+
+
    
 	
 				
-			   }		
+			   }	
+				/*char lfname[30] = {0};
+				sprintf(lfname,"%s.%d",packet.filename,packet.file_slice+1);
+				FILE *lfp = fopen(lfname,"w"),*rf;
+				fwrite(buf,1,packet.data_length,lfp);
+				fclose(lfp);*/
+				
+				/*lfp = fopen(lfname,"r");
+				if(packet.file_slice==0){rf=fopen("temp","w");}
+				char *temp = (char*)malloc(packet.data_length);
+				fread(temp,1,packet.data_length,lfp);
+				fwrite(temp,1,packet.data_length,rf);
+				free(temp);
+				if(packet.file_slice==3){fclose(rf);printf("Closed Temp");}*/
+
+
 				free(buf);
 
 
 		  }	
+
 			
 			printf("File Sent \n"); 
 			
@@ -275,7 +295,7 @@ void main(int argc, char *argv[])
 			}
 			else
 			{
-				printf("%d) %s Incomplete\n ",i+1,files[i]);
+				printf("%d) %s Incomplete\n",i+1,files[i]);
 			}
 		}
 
@@ -289,6 +309,7 @@ void main(int argc, char *argv[])
 		strcpy(p.command,"list");
 		lister(p);
 		int rcv_part_flag[5] = {0};
+		long int rcv_size[4] = {0};
 		for(int i =0;i<file_counter;i++)
 		{
 			if(strcmp(files[i],packet.filename)==0)
@@ -299,12 +320,12 @@ void main(int argc, char *argv[])
 					//TODO Get the File here
 					char *filedata[4] = {0};
 					// recieve data size and packet number
-					for(int j=0;j<1;j++)
+					for(int j=0;j<4;j++)
 					{
 						send(tcp_socket[j],&packet, sizeof(packet), MSG_NOSIGNAL);
 						recv(tcp_socket[j],&getp, sizeof(getp), MSG_NOSIGNAL);
-						printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
-					
+						//printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
+						
 						struct timeval timeout = {2,0};
 						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
@@ -312,7 +333,7 @@ void main(int argc, char *argv[])
 					     {
 
 						if(rcv_part_flag[getp.packet_number[x]] == 0){
-							filedata[getp.packet_number[x]] = (char*)malloc(getp.packet_sizes[x]);}
+							filedata[getp.packet_number[x]-1] = (char*)malloc(getp.packet_sizes[x]);}
 
 						long int total_bytes = 0;			
 						while(total_bytes != getp.packet_sizes[x])
@@ -320,25 +341,29 @@ void main(int argc, char *argv[])
 
 				
 				
-							long int rcv = recv(tcp_socket[j],filedata[getp.packet_number[x]], getp.packet_sizes[x], 0);
+							long int rcv = recv(tcp_socket[j],&filedata[getp.packet_number[x]-1][total_bytes], getp.packet_sizes[x], 0);
 		
-							total_bytes += rcv; 
+							
 			
 						    	if(rcv>0){		
 							// Decrypt the data
-							//for(long int j=0; j<rcv; j++)	
-							//{
-							//	recv_buf[j] ^= key; 
-							//}
+							for(long int z =0; z<rcv ; z++)
+							{	
+									filedata[getp.packet_number[x]-1][z+total_bytes] ^= key;
+							}
+							//printf("rcv - %ld total bytes - %ld\n",rcv,total_bytes);
+							total_bytes += rcv; 
 							// Write the data to the file
 						    	
 							}
 							else{perror("Not recieved");break;}
 						}
-							rcv_part_flag[getp.packet_number[x]] = 1;
-							if(total_bytes>0)
+							if(total_bytes>0){
 								printf("Data Recieved %ld \n",total_bytes);
-							
+								rcv_part_flag[getp.packet_number[x]] = 1;
+								rcv_size[getp.packet_number[x]-1] = total_bytes;
+
+							}
 
 
 				
@@ -348,7 +373,19 @@ void main(int argc, char *argv[])
 						timeout.tv_sec = 0;
 						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 						
-						if(rcv_part_flag[1]+rcv_part_flag[2]+rcv_part_flag[3]+rcv_part_flag[4] == 4){printf("File Recieved\n");break;}
+						if(rcv_part_flag[1]+rcv_part_flag[2]+rcv_part_flag[3]+rcv_part_flag[4] == 4)
+						{	
+							printf("File Recieved\n");
+							FILE *fpw = fopen(packet.filename,"w");
+						
+							for(int part=0;part<4;part++)
+							{
+								fwrite(filedata[part], 1,rcv_size[part],fpw);
+								free(filedata[part]);								
+							}
+							fclose(fpw);
+							break;
+						}
 					}
 
 

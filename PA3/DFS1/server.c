@@ -52,6 +52,8 @@ int main (int argc, char **argv)
   int recvlen;
  //Create a socket for the soclet
  //If sockfd<0 there was an error in the creation of the socket
+ 
+ if(argc != 2){printf("Socket Number Not Given");}
  if ((listenfd = socket (AF_INET, SOCK_STREAM, 0)) <0) {
   perror("Problem in creating the socket");
   exit(2);
@@ -61,7 +63,7 @@ int main (int argc, char **argv)
  //preparation of the socket address
  servaddr.sin_family = AF_INET;
  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
- servaddr.sin_port = htons(SERV_PORT);
+ servaddr.sin_port = htons(atoi(argv[1]));
 
  //bind the socket
  bind (listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
@@ -161,9 +163,11 @@ int main (int argc, char **argv)
 				}
 				// Write the data to the file
 			    	fwrite(recv_buf, 1,rcv,fptr);
+				//printf("data %s\n",recv_buf);
 				}
 				else{printf("eiflvlavasv\n");break;}
 			}
+				free(recv_buf);
 				printf("Data Recieved %ld \n",total_bytes);
 				fclose(fptr);	
 			timeout.tv_sec = 0;
@@ -221,12 +225,22 @@ int main (int argc, char **argv)
 		{
 			struct timeval timeout = {0,5000};
 			setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
-			
+			printf("Sending part %d\n",getp.packet_number[part]);
 
 
 			char *data = (char*)malloc(getp.packet_sizes[part]);
+			if(part){
+			fread(data,1,getp.packet_sizes[part],f2);}
+			else{
+				fread(data,1,getp.packet_sizes[part],f1);}
+			
+			for(long int z =0; z<getp.packet_sizes[part] ; z++)
+			{	
+				data[z] ^= key;
+			}
+			
 
-			send(connfd, buf, packet.data_length , MSG_NOSIGNAL);
+			send(connfd,data,getp.packet_sizes[part], MSG_NOSIGNAL);
 
 			free(data);
 
