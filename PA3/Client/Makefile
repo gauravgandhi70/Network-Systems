@@ -4,7 +4,7 @@ CC=gcc
 all: client
 
 client: client.c
-	$(CC) client.c -lm -o client
+	$(CC) client.c -lcrypto -lm -o client
 client.o: client.c
 	$(CC) client.c -I math.h -c -o client.o
 

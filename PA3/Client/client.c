@@ -9,6 +9,8 @@
 #include<stdbool.h>
 #include <netdb.h>
 #include <math.h>
+#include <openssl/md5.h>
+
 #define BUFSIZE 1024
 // Structure for packet
 typedef struct{
@@ -47,6 +49,8 @@ typedef enum{dfs1=0,dfs2,dfs3,dfs4}dfs_t;
 
 int tcp_socket[4] = {0};
 
+unsigned char file_md5_counter(char *filename,size_t filesize, FILE *f);
+
 void lister(packet_t packet);
 void parse_config(char *filename)
 {
@@ -79,7 +83,8 @@ void parse_config(char *filename)
 void main(int argc, char *argv[])
 {
 	
-  int recvlen,md5 = 3,option = 1;
+  int recvlen,option = 1;
+  unsigned char md5 = 3;	
   FILE *fptr;
   char inp[50],buf[BUFSIZE],rcv[BUFSIZE],err[50];
   char userinput[30] = {0}, ip[100]={0};
@@ -179,6 +184,7 @@ void main(int argc, char *argv[])
 	// Put the file into the server	
    	 if(((strcmp(packet.command,"put")==0) ) && (*(packet.filename) != '\0')) // Check if the filename is empty or not
  	  {
+	     printf("command filename %s %s\n",packet.command,packet.filename);
 		
 		fptr = fopen(packet.filename,"rb");		// open the file to read
    	        
@@ -192,15 +198,16 @@ void main(int argc, char *argv[])
 			fseek(fptr,0,SEEK_END);
   			size_t file_size=ftell(fptr);
   			fseek(fptr,0,SEEK_SET);
-					
-			printf("File Size - %ld \n",file_size);
+			
+			md5 = file_md5_counter(packet.filename,file_size,fptr);	
+				
+			printf("File Size - %ld \n\n\n",file_size);
 			
 			float f = (file_size);
 			f = f/4 ;
  			int fileSize_OneServer = round(f);
-			printf("float %f roundoff %d\n",f,fileSize_OneServer);
+			//printf("float %f roundoff %d\n",f,fileSize_OneServer);
 
-		     printf("command filename %s %s\n",packet.command,packet.filename);
 		     for(packet.file_slice = 0;packet.file_slice<4;packet.file_slice++)
 	               {
 			  	
@@ -226,7 +233,6 @@ void main(int argc, char *argv[])
 				
 			    {
 		         	
-	
 			    	int alive_server = send(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&packet, sizeof(packet), MSG_NOSIGNAL);
 				struct timeval timeout = {0,5000};
 				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
@@ -359,7 +365,7 @@ void main(int argc, char *argv[])
 							else{perror("Not recieved");break;}
 						}
 							if(total_bytes>0){
-								printf("Data Recieved %ld \n",total_bytes);
+								printf("Packet %d with Data Recieved %ld from server number - %d \n",getp.packet_number[x],total_bytes,j);
 								rcv_part_flag[getp.packet_number[x]] = 1;
 								rcv_size[getp.packet_number[x]-1] = total_bytes;
 
@@ -389,10 +395,6 @@ void main(int argc, char *argv[])
 					}
 
 
-					// malloc that much memory
-					// recieve the data
-					//once entire file is recieved
-					// write file 
 				}
 				else
 				{
@@ -492,4 +494,31 @@ void lister(packet_t packet)
            }
 	
 			 
+}
+
+
+
+unsigned char file_md5_counter(char *filename,size_t filesize, FILE *f)
+{
+
+  char *buf = NULL;
+  unsigned char md5s[MD5_DIGEST_LENGTH] ={0}; //(char*)malloc(MD5_DIGEST_LENGTH); 
+
+ 
+  buf = (char*)malloc(filesize);
+
+  fread(buf,1, filesize, f);
+  fseek(f,0,SEEK_SET);
+
+  MD5(buf, filesize, md5s);
+  printf("MD5 (%s) = ", filename);
+  for (int i=0; i < MD5_DIGEST_LENGTH; i++)
+  {
+    printf("%x",  md5s[i]);
+
+  }  
+  printf("\nRemmainder - %d  ",md5s[15]%4);
+  free(buf);
+  return (md5s[15]%4);
+
 }
