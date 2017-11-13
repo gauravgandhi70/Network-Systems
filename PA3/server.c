@@ -134,9 +134,10 @@ int main (int argc, char **argv)
   }
  
 
-
+// Recieve command packet from the client
   while ((n =recv(connfd,&packet ,sizeof(packet), 0))>0)   
   {
+// Every time check the username and password
 		  f = fopen("dfs.conf","rb");
 		  bzero(filebuf,1000);
 
@@ -159,13 +160,15 @@ int main (int argc, char **argv)
 		     continue;
 		  }
 		 
-
+// If subfolder is provided then create the string showing the path
 	bzero(subpath,100);		
 	sprintf(subpath,"%s%s",path,packet.subfolder);
 	printf("subpath - %s\n",subpath);
 	//send(connfd,&serv_num, sizeof(int), MSG_NOSIGNAL);
 	//printf("command filename %s %s\n",packet.command,packet.filename);
 
+
+	// handle the put command
           if(((strcmp(packet.command,"put")==0) ))
  	  {
 			struct timeval timeout = {1,0};
@@ -179,7 +182,8 @@ int main (int argc, char **argv)
 			char *recv_buf = NULL;
 			 recv_buf = (char*)malloc(packet.data_length);
 			// Recieve the data in the bufer
-			long int total_bytes = 0;			
+			long int total_bytes = 0;
+			// Wait until entire file slice is recieved			
 			while(total_bytes != packet.data_length)
 			{
 				struct timeval timeout = {2,0};
@@ -205,23 +209,29 @@ int main (int argc, char **argv)
 				free(recv_buf);
 				printf("Data Recieved %ld \n",total_bytes);
 				fclose(fptr);	
+
 			timeout.tv_sec = 0;
 			setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 		
 
 	}
+	// Handle the list command
 	else if(((strcmp(packet.command,"list")==0) ))
 	{
+
 		printf("Lister called\n");
+		// Implemented the lister function separately
 		file_lister(subpath,path,foldername,connfd,argv[1]);
 		
 	}
+	// Handle get command
 	else if(((strcmp(packet.command,"get")==0) ))
 	{
 		get_t getp = {0};
 		char partname[2][30] = {0};
 		FILE *f1,*f2;
 		int file_found = 0;
+		// Check if the file exists
 		for(int i=0;i<file_counter+1;i++)
 		{	
 
@@ -242,7 +252,7 @@ int main (int argc, char **argv)
 		
 		}
 
-		//if(file_found == 0){continue;}
+		// if file exists then open the files
 		f1 = fopen(partname[0],"r");
 		f2 = fopen(partname[1],"r");
 
@@ -259,8 +269,10 @@ int main (int argc, char **argv)
 
 		
 		printf("1)%s %ld 2)%s %ld \n",partname[0],getp.packet_sizes[0],partname[1],getp.packet_sizes[1]);
+		// Send the detials of the file packet to the client
 		send(connfd,&getp, sizeof(getp),0);
 		
+		// send the 2 parts to the client
 		for(int part=0;part<2;part++)
 		{
 			struct timeval timeout = {0,5000};
@@ -269,6 +281,8 @@ int main (int argc, char **argv)
 
 
 			char *data = (char*)malloc(getp.packet_sizes[part]);
+		
+			
 			if(part){
 			fread(data,1,getp.packet_sizes[part],f2);}
 			else{
@@ -296,9 +310,10 @@ int main (int argc, char **argv)
 		
 		
 	}
+	// Handle the mkdir command
 	else if(((strcmp(packet.command,"mkdir")==0) ))
 	{
-	
+	// Create a new folder if it doesnt exists
 		struct stat st = {0};
 		if (stat(subpath, &st) == -1) {
 		    mkdir(subpath, 0700);
@@ -330,13 +345,15 @@ int main (int argc, char **argv)
 }
 
 
-
+// Lists all the files in the particular directory
 void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 {
 	FILE *f_list;
 	bzero(&list,sizeof(list));
 	char command[100]= {0},filepath[100] = {0},filelist[1024] = {0},*c = filelist;
 	char *line;
+
+	// Run ls command and get the list of files in the asled directory
 	sprintf(command,"ls -a %s >> .%s/%s_filelist.log",subpath,root,user);
 	printf("command - %s \n",command);
 	system(command);
@@ -344,6 +361,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 	printf("filepath %s\n",filepath);
 	f_list = fopen(filepath,"r");
 	int rec = fread(filelist,1,1024, f_list); 
+	
 	//printf("%s\n",filelist);
 	int i=0;
 	c = c+5;
@@ -364,10 +382,11 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 	//send(connfd,&list.total_files, sizeof(int), MSG_NOSIGNAL);
 
 	
-	
+	// Go through the filelist 
 	while(*c != EOF && i < 1024)
 	{	int j=0,dotcounter = 0;
-		char line[30] = {0};		
+		char line[30] = {0};
+		// Count the number of dots in every file name		
 		while(*c != '\n')
 		{
 			line[j] = *c;
@@ -377,7 +396,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 			}
 			c++;i++;j++;
 		}
-	
+		// if 2 dots are found then parse the file number and file name
 		if(dotcounter == 2)
 		{
 			char *lp = line,local_filename[30]= {0};
@@ -413,7 +432,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 			
 			
 		}
-
+	// if  dots are found then parse the file number and file name
 		else if(dotcounter == 3)
 		{
 			char *lp = line,local_filename[30]= {0};
@@ -450,6 +469,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 
 			
 		}
+		// Otherwise consider that as  foldername
 		else if(line[0] != 0)
 		{
 			strcpy(list.subfolder[list.total_folders],line);
@@ -461,6 +481,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 		
 			
 	}
+	// Get the total number of files and send that list packet to the client
 	list.total_files = file_counter + 1;
 	int sendsize;
 	sendsize = send(connfd,&list, sizeof(list), MSG_NOSIGNAL);
@@ -468,6 +489,7 @@ void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 
 
 	bzero(command,100);
+	// remove the filelist log file
 	sprintf(command,"rm -f .%s/%s_filelist.log",root,user);
 	system(command); 
 	

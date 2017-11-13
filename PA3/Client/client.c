@@ -308,6 +308,9 @@ void main(int argc, char *argv[])
 				    }
 	 			    // Send the encrypted data
 				    send(tcp_socket[packet_combo[md5][packet.file_slice][serv]], buf, packet.data_length , MSG_NOSIGNAL);
+				timeout.tv_sec = 0;
+				timeout.tv_usec = 10000;    
+				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
 				recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
 				timeout.tv_sec = 1;
@@ -419,7 +422,7 @@ void main(int argc, char *argv[])
 						recv(tcp_socket[j],&getp, sizeof(getp), MSG_NOSIGNAL);
 						//printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
 						
-						struct timeval timeout = {2,0};
+						struct timeval timeout = {1,0};
 						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
 					     for(int x = 0;x<2;x++)
@@ -452,7 +455,7 @@ void main(int argc, char *argv[])
 							else{perror("Not recieved");break;}
 						}
 							if(total_bytes>0){
-								printf("Packet %d with Data Recieved %ld from server number - %d \n",getp.packet_number[x],total_bytes,j);
+								printf("Packet %d with Data Recieved %ld from server number - %d \n",getp.packet_number[x],total_bytes,j+1);
 								rcv_part_flag[getp.packet_number[x]] = 1;
 								rcv_size[getp.packet_number[x]-1] = total_bytes;
 
@@ -463,8 +466,6 @@ void main(int argc, char *argv[])
 						
 
 					     }
-						timeout.tv_sec = 0;
-						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 						
 						if(rcv_part_flag[1]+rcv_part_flag[2]+rcv_part_flag[3]+rcv_part_flag[4] == 4)
 						{	
