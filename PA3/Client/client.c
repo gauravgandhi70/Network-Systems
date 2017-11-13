@@ -121,10 +121,6 @@ void main(int argc, char *argv[])
   // Open a TCP socket
      for(int i = 0;i<4;i++)
      {
-	  if((tcp_socket[i]=socket(AF_INET, SOCK_STREAM, 0))<0)
-	  {
-		perror("Socket Failed");
-	  }
 	  //else{printf("Socket Created %d\n",tcp_socket[i]);}
      }	
    
@@ -144,39 +140,6 @@ void main(int argc, char *argv[])
   }
 
   // Connect our socket to the server
-  for(int i=0;i<4;i++)
-  {
-	 if (connect(tcp_socket[i], (struct sockaddr *) &dfs[i], sizeof(dfs[i]))<0) 
-	{
-	  perror("Problem in connecting to the server");
-	}
-	else
-	{
-	   char username[100] = {0};
-	   setsockopt(tcp_socket[i], SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-
-       
-	   setsockopt(tcp_socket[i], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
-
-	  sprintf(username,"%s %s",conf.username,conf.password);
-	  strcpy(packet.username_password,username);
-	  sendto(tcp_socket[i],username, 100, 0, (struct sockaddr *)&dfs[i],sizeof(dfs[i]));
-	  password_accepted = 0;
-	  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
-	  if(password_accepted)
-	  {
-		printf("\nLogin Successful\n");
-	  }
-	  else
-          {
-         	printf("Falied to Login, Password Not mactched \n");
-		exit(-1);
-	  } 
-   
-
-	 
-	}
-  }    
   	
 /*
 	  password_accepted = 0;
@@ -204,6 +167,45 @@ void main(int argc, char *argv[])
   	// Recieve the command
 
     scanf (" %[^\n]%*c", inp);
+
+				  for(int i=0;i<4;i++)
+				  {
+					  if((tcp_socket[i]=socket(AF_INET, SOCK_STREAM, 0))<0)
+					  {
+						perror("Socket Failed");
+					  }
+
+					 if (connect(tcp_socket[i], (struct sockaddr *) &dfs[i], sizeof(dfs[i]))<0) 
+					{
+					  perror("Problem in connecting to the server");
+					}
+					else
+					{
+					   char username[100] = {0};
+					   setsockopt(tcp_socket[i], SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+
+				       
+					   setsockopt(tcp_socket[i], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
+					  sprintf(username,"%s %s",conf.username,conf.password);
+					  strcpy(packet.username_password,username);
+					   sendto(tcp_socket[i],username, 100, 0, (struct sockaddr *)&dfs[i],sizeof(dfs[i]));
+					  password_accepted = 0;
+					  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
+					  if(password_accepted)
+					  {
+						printf("\nLogin Successful\n");
+					  }
+					  else
+					  {
+					 	printf("Falied to Login, Password Not mactched \n");
+						exit(-1);
+					  } 
+				   
+
+					 
+					}
+				  }    
     
     sscanf(inp,"%s %s %s",packet.command,packet.filename,subf);
     if(strcmp(packet.command,"LIST")==0  || strcmp(packet.command,"MKDIR")==0)
@@ -287,11 +289,11 @@ void main(int argc, char *argv[])
 				  recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&password_accepted,sizeof(int), 0); 
 				  if(password_accepted)
 				  {
-					printf("\nLogin Successful\n");
+					printf("\nServer On\n");
 				  }
 				  else
 				  {
-				 	printf("Falied to Login, Password Not mactched \n");
+				 	printf("Server Down \n");
 					//continue;
 					//exit(-1);
 				  } 
@@ -408,11 +410,11 @@ void main(int argc, char *argv[])
 
 					  if(password_accepted)
 					  {
-						printf("\nLogin Successful\n");
+						printf("\nServer On\n");
 					  }
 					  else
 					  {
-					 	printf("Falied to Login, Password Not mactched \n");
+					 	printf("Server Down \n");
 						//continue;
 						//exit(-1);
 					  } 
@@ -510,11 +512,11 @@ void main(int argc, char *argv[])
 					  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
 					  if(password_accepted)
 					  {
-						printf("\nLogin Successful\n");
+						printf("\nServer On\n");
 					  }
 					  else
 					  {
-					 	printf("Falied to Login, Password Not mactched \n");
+					 	printf("Server Down \n");
 						//continue;
 						//exit(-1);
 					  } 
@@ -534,6 +536,8 @@ void main(int argc, char *argv[])
 		printf("Error (Wrong Command or Wrong filename) \n");	
 		  
 	  }
+
+	close(tcp_socket[0]);close(tcp_socket[1]);close(tcp_socket[2]);close(tcp_socket[3]);
   } 
 
 
@@ -558,11 +562,11 @@ void lister(packet_t packet)
 					  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
 					  if(password_accepted)
 					  {
-						printf("\nLogin Successful\n");
+						printf("\nServer On\n");
 					  }
 					  else
 					  {
-					 	printf("Falied to Login, Password Not mactched \n");
+					 	printf("Server Down \n");
 						//return;
 					  } 
 

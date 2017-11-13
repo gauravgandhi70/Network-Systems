@@ -169,7 +169,7 @@ int main (int argc, char **argv)
 
 
 	// handle the put command
-          if(((strcmp(packet.command,"put")==0) ))
+          if(((strcmp(packet.command,"PUT")==0) ))
  	  {
 			struct timeval timeout = {1,0};
 			setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
@@ -216,7 +216,7 @@ int main (int argc, char **argv)
 
 	}
 	// Handle the list command
-	else if(((strcmp(packet.command,"list")==0) ))
+	else if(((strcmp(packet.command,"LIST")==0) ))
 	{
 
 		printf("Lister called\n");
@@ -225,7 +225,7 @@ int main (int argc, char **argv)
 		
 	}
 	// Handle get command
-	else if(((strcmp(packet.command,"get")==0) ))
+	else if(((strcmp(packet.command,"GET")==0) ))
 	{
 		get_t getp = {0};
 		char partname[2][30] = {0};
@@ -311,7 +311,7 @@ int main (int argc, char **argv)
 		
 	}
 	// Handle the mkdir command
-	else if(((strcmp(packet.command,"mkdir")==0) ))
+	else if(((strcmp(packet.command,"MKDIR")==0) ))
 	{
 	// Create a new folder if it doesnt exists
 		struct stat st = {0};
@@ -334,8 +334,7 @@ int main (int argc, char **argv)
 
 
    	
-  if (n < 0)
-    printf("%s\n", "Read error");
+ 
   close(connfd);
   exit(0);
  }
