@@ -202,7 +202,7 @@ void main(int argc, char *argv[])
 					  }
 					  else
 					  {
-					 	printf("Falied to Login, Password Not mactched \n");
+					 	printf("Invalid Username/Password. Please try again. \n");
 						exit(-1);
 					  } 
 				   
@@ -297,7 +297,7 @@ void main(int argc, char *argv[])
 				  }
 				  else
 				  {
-				 	printf("Server Down \n");
+				 	printf("Server Down or Invalid Username/Password. Please try again. \n");
 					//continue;
 					//exit(-1);
 				  } 
@@ -418,7 +418,7 @@ void main(int argc, char *argv[])
 					  }
 					  else
 					  {
-					 	printf("Server Down \n");
+					 	printf("Server Down or Invalid Username/Password. Please try again. \n");
 						//continue;
 						//exit(-1);
 					  } 
@@ -523,7 +523,7 @@ void main(int argc, char *argv[])
 					  }
 					  else
 					  {
-					 	printf("Server Down \n");
+					 	printf("Server Down or Invalid Username/Password. Please try again. \n");
 						//continue;
 						//exit(-1);
 					  } 
@@ -575,7 +575,7 @@ void lister(packet_t packet)
 					  }
 					  else
 					  {
-					 	printf("Server Down \n");
+					 	printf("Server Down or Invalid Username/Password. Please try again.  \n");
 						//return;
 					  } 
 
