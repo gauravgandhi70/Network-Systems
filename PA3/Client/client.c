@@ -61,12 +61,15 @@ unsigned char file_md5_counter(char *filename,size_t filesize, FILE *f);
 void lister(packet_t packet);
 void parse_config(char *filename)
 {
+
 	FILE *f;
+	// Open the config file
 	f = fopen(filename,"rb");
 	if(f)
 	{
 		char buffer[1000],cmp[20],*c;
 	        fread(buffer,1,1000, f);
+		// Read all the IP addresses
 		for(int i=0;i<4;i++)
 		{
 			bzero(cmp,sizeof(cmp));
@@ -75,6 +78,7 @@ void parse_config(char *filename)
 			sscanf(c,"%*s %s %s",conf.server[i],conf.port[i]);
 		}
 		bzero(cmp,sizeof(cmp));
+		// Read the Username password from the conf file
 		c = strstr(buffer,"Username_Pass");
 		sscanf(c,"%*s %s %s",conf.username,conf.password);
 			
@@ -404,7 +408,7 @@ void main(int argc, char *argv[])
 					for(int j=0;j<4;j++)
 					{
 						send(tcp_socket[j],&packet, sizeof(packet), MSG_NOSIGNAL);
-	
+						// Check if server is up
 					  password_accepted = 0;
 					  recv(tcp_socket[j],&password_accepted,sizeof(int), 0); 
 
@@ -418,8 +422,8 @@ void main(int argc, char *argv[])
 						//continue;
 						//exit(-1);
 					  } 
-
 				
+						// Recieve file part details
 
 						recv(tcp_socket[j],&getp, sizeof(getp), MSG_NOSIGNAL);
 						//printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
@@ -427,6 +431,7 @@ void main(int argc, char *argv[])
 						struct timeval timeout = {1,0};
 						setsockopt(tcp_socket[j], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
+					// Recieve the actual data
 					     for(int x = 0;x<2;x++)
 					     {
 
@@ -468,7 +473,7 @@ void main(int argc, char *argv[])
 						
 
 					     }
-						
+						// Optimization, If the file is comeptlete then stop the transfer
 						if(rcv_part_flag[1]+rcv_part_flag[2]+rcv_part_flag[3]+rcv_part_flag[4] == 4)
 						{	
 							printf("File Recieved\n");
@@ -486,6 +491,7 @@ void main(int argc, char *argv[])
 
 
 				}
+				// If file is incomplete then print the error
 				else
 				{
 					printf(" File Exist But Incomplete :  Servers Down\n");
@@ -499,10 +505,11 @@ void main(int argc, char *argv[])
 		}
  
           }
+	// Make a new directory in the cient folder
 	  else if((strcmp(packet.command,"MKDIR")==0) && (*(packet.subfolder) != '\0'))
 	  {
 		
-		
+		// Send the command to all of the servers
 		for(int i =0;i<4;i++)
 		{
 			send(tcp_socket[i],&packet, sizeof(packet), MSG_NOSIGNAL);
@@ -537,6 +544,7 @@ void main(int argc, char *argv[])
 		  
 	  }
 
+	// Close the socket after every iteration
 	close(tcp_socket[0]);close(tcp_socket[1]);close(tcp_socket[2]);close(tcp_socket[3]);
   } 
 
@@ -555,6 +563,7 @@ void lister(packet_t packet)
 		{
 			
 		char parts[20][4]={0};
+		// Send list packet to the server
 		send(tcp_socket[i],&packet, sizeof(packet), MSG_NOSIGNAL);
 
 				
@@ -576,7 +585,7 @@ void lister(packet_t packet)
 
 		
 		long int rec;
-
+		// recieve list packet from each server
 		rec = recv(tcp_socket[i],&list[i], sizeof(list), 0);
 		//printf("Files %d Recived list of %ld\n",list[i].total_files,rec);
 		
@@ -585,11 +594,12 @@ void lister(packet_t packet)
 		
 		bzero(files,300);
 		bzero(subfolder,300);
-
 		bzero(part_flag,sizeof(int)*500);
 
 		file_counter = 0;
 		folder_counter = 0;
+
+// Get all the files from all the servers and make a loal list of all the files
 		for(int i=0;i<4;i++)
 		{
 			for(int j=0;j<list[i].total_files;j++)
@@ -616,6 +626,7 @@ void lister(packet_t packet)
 				}
 
 			}
+// Get all the folders from all the servers and make a list of all the subfolders
 
 			for(int j=0;j<list[i].total_folders;j++)
 			{
@@ -649,7 +660,7 @@ void lister(packet_t packet)
 }
 
 
-
+// Calculate the MD5sum of every file and calculate md5sum%4 and return the remainder
 unsigned char file_md5_counter(char *filename,size_t filesize, FILE *f)
 {
 
