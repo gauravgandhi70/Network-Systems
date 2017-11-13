@@ -14,6 +14,8 @@
 typedef struct{
 		char command[20];
 		char filename[30];
+		char subfolder[30];
+		char username_password[100];
 		int file_slice;
 		long int data_length;
 
@@ -22,8 +24,10 @@ typedef struct{
 typedef struct{
 		int serv_no;
 		int total_files;
+		int total_folders;
 		char filename[100][30];
 		char file_slice[100][2];
+		char subfolder[100][30];
 }list_t;
 
 typedef struct{
@@ -33,27 +37,28 @@ typedef struct{
 
 list_t list = {0};
 int file_counter=-1;
-void file_lister(char *path, char *user,int conndf);
+void file_lister(char *subpath,char *path, char *user,int conndf,char *root);
 
 int main (int argc, char **argv)
 {
  int listenfd, connfd, option =1 ;
  const int serv_num = 1;
  pid_t childpid;
-  long long int n;
+ long long int n;
  socklen_t clilen;
  char buf[MAXLINE] = {0};
-  char command[10]={0},filename[30]={0},username[100];
+ char command[10]={0},filename[30]={0},username[100];
  struct sockaddr_in cliaddr, servaddr,remaddr;
  socklen_t addrlen = sizeof(servaddr); 
  char key=10;
   FILE *fptr;
   packet_t packet = {0};
+  
   int recvlen;
  //Create a socket for the soclet
  //If sockfd<0 there was an error in the creation of the socket
  
- if(argc != 2){printf("Socket Number Not Given");}
+ if(argc != 3){printf("Socket Number Not Given");}
  if ((listenfd = socket (AF_INET, SOCK_STREAM, 0)) <0) {
   perror("Problem in creating the socket");
   exit(2);
@@ -63,7 +68,7 @@ int main (int argc, char **argv)
  //preparation of the socket address
  servaddr.sin_family = AF_INET;
  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
- servaddr.sin_port = htons(atoi(argv[1]));
+ servaddr.sin_port = htons(atoi(argv[2]));
 
  //bind the socket
  bind (listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
@@ -88,7 +93,7 @@ int main (int argc, char **argv)
   if ( (childpid = fork ()) == 0 ) {//if it’s 0, it’s child process
 
   printf ("%s\n","Child created for dealing with client requests");
-  char foldername[20] = {0},path[25]={0};
+  char foldername[20] = {0},path[25]={0},subpath[100] = {0};
 
   //close listening socket
   close (listenfd);
@@ -101,6 +106,7 @@ int main (int argc, char **argv)
   char filebuf[1000] = {0};
   FILE *f = fopen("dfs.conf","rb");
   fread(filebuf,1,1000,f);
+  fclose(f);
   char *p = strstr(filebuf,username);
   bzero(username,100);
   if(p)
@@ -111,7 +117,8 @@ int main (int argc, char **argv)
 	// Making New Folder if it doesnt exist
 	struct stat st = {0};
 	sscanf(p,"%s",foldername);
-	sprintf(path,"./%s",foldername);
+	sprintf(path,".%s/%s/",argv[1],foldername);
+	printf("path %s \n",path);	
 	if (stat(path, &st) == -1) {
 	    mkdir(path, 0700);
 	    printf("Folder Created\n");
@@ -126,8 +133,36 @@ int main (int argc, char **argv)
      exit(0);
   }
  
+
+
   while ((n =recv(connfd,&packet ,sizeof(packet), 0))>0)   
   {
+		  f = fopen("dfs.conf","rb");
+		  bzero(filebuf,1000);
+
+		  fread(filebuf,1,1000,f);
+		  fclose(f);
+
+		  char *p = strstr(filebuf,packet.username_password);
+
+		  if(p)
+		  {
+			printf("Username Password Matched\n");
+			password_accepted = 1;
+			send(connfd,&password_accepted,sizeof(int),0);
+		  }
+		  else
+		  {
+		    password_accepted = 0;
+			send(connfd,&password_accepted,sizeof(int),0);
+		     printf("Username Password Not Mached \n");
+		     continue;
+		  }
+		 
+
+	bzero(subpath,100);		
+	sprintf(subpath,"%s%s",path,packet.subfolder);
+	printf("subpath - %s\n",subpath);
 	//send(connfd,&serv_num, sizeof(int), MSG_NOSIGNAL);
 	//printf("command filename %s %s\n",packet.command,packet.filename);
 
@@ -137,7 +172,7 @@ int main (int argc, char **argv)
 			setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 			// Generate the name for the part number from the file slice number
 			char partname[30] = {0};
-			sprintf(partname,"%s/.%s.%d",path,packet.filename,packet.file_slice+1);
+			sprintf(partname,"%s.%s.%d",subpath,packet.filename,packet.file_slice+1);
 			printf("partname - %s\n",partname);
 			// Open the new file with the part number
 			fptr = fopen(partname,"w");
@@ -178,7 +213,7 @@ int main (int argc, char **argv)
 	else if(((strcmp(packet.command,"list")==0) ))
 	{
 		printf("Lister called\n");
-		file_lister(path,foldername,connfd);
+		file_lister(subpath,path,foldername,connfd,argv[1]);
 		
 	}
 	else if(((strcmp(packet.command,"get")==0) ))
@@ -186,7 +221,7 @@ int main (int argc, char **argv)
 		get_t getp = {0};
 		char partname[2][30] = {0};
 		FILE *f1,*f2;
-
+		int file_found = 0;
 		for(int i=0;i<file_counter+1;i++)
 		{	
 
@@ -195,14 +230,19 @@ int main (int argc, char **argv)
 				//printf(" %s Partname %d %d\n",list.filename[i],list.file_slice[i][0],list.file_slice[i][1]);
 				getp.packet_number[0] = list.file_slice[i][0] - 48 ; getp.packet_number[1] = list.file_slice[i][1] - 48; 
 				// Make the names of file
-				sprintf(partname[0],"./%s/.%s.%d",foldername,list.filename[i],getp.packet_number[0]);
-				sprintf(partname[1],"./%s/.%s.%d",foldername,list.filename[i],getp.packet_number[1]);
-
+				sprintf(partname[0],"%s.%s.%d",subpath,list.filename[i],getp.packet_number[0]);
+				sprintf(partname[1],"%s.%s.%d",subpath,list.filename[i],getp.packet_number[1]);
+				file_found = 1;
 				break;
+			}
+			else if(i == file_counter)
+			{
+				printf("File not found here\n");
 			}	
 		
 		}
 
+		//if(file_found == 0){continue;}
 		f1 = fopen(partname[0],"r");
 		f2 = fopen(partname[1],"r");
 
@@ -210,7 +250,7 @@ int main (int argc, char **argv)
 		fseek(f1,0,SEEK_END);
 		getp.packet_sizes[0]=ftell(f1);
 		fseek(f1,0,SEEK_SET);}
-	
+
 
 		if(f2){
 		fseek(f2,0,SEEK_END);
@@ -256,6 +296,16 @@ int main (int argc, char **argv)
 		
 		
 	}
+	else if(((strcmp(packet.command,"mkdir")==0) ))
+	{
+	
+		struct stat st = {0};
+		if (stat(subpath, &st) == -1) {
+		    mkdir(subpath, 0700);
+		    printf("%s Folder Created\n",packet.subfolder);
+		   }
+	
+	}
 	else
 	{
 		printf("Wrong Command\n");
@@ -281,15 +331,17 @@ int main (int argc, char **argv)
 
 
 
-void file_lister(char *path,char *user,int connfd)
+void file_lister(char *subpath,char *path,char *user,int connfd,char *root)
 {
 	FILE *f_list;
 	bzero(&list,sizeof(list));
 	char command[100]= {0},filepath[100] = {0},filelist[1024] = {0},*c = filelist;
 	char *line;
-	sprintf(command,"ls -a %s/ >> %s_filelist.log",path,user);
+	sprintf(command,"ls -a %s >> .%s/%s_filelist.log",subpath,root,user);
+	printf("command - %s \n",command);
 	system(command);
-	sprintf(filepath,"%s_filelist.log",path);
+	sprintf(filepath,".%s/%s_filelist.log",root,user);
+	printf("filepath %s\n",filepath);
 	f_list = fopen(filepath,"r");
 	int rec = fread(filelist,1,1024, f_list); 
 	//printf("%s\n",filelist);
@@ -352,7 +404,7 @@ void file_lister(char *path,char *user,int connfd)
 
 			}
 			
-			//printf("filename - %s File - %d Slice - %s\n",list.filename[file_counter],file_counter,list.file_slice[file_counter]);
+
 			lp++;
 			
 			
@@ -398,6 +450,12 @@ void file_lister(char *path,char *user,int connfd)
 
 			
 		}
+		else if(line[0] != 0)
+		{
+			strcpy(list.subfolder[list.total_folders],line);
+			printf("Foldername - %s\n",list.subfolder[list.total_folders]);
+			list.total_folders++;	
+		}
 		
 		c++;i++;
 		
@@ -410,7 +468,7 @@ void file_lister(char *path,char *user,int connfd)
 
 
 	bzero(command,100);
-	sprintf(command,"rm -f %s_filelist.log",user);
+	sprintf(command,"rm -f .%s/%s_filelist.log",root,user);
 	system(command); 
 	
 

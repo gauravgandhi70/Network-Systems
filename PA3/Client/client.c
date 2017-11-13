@@ -16,16 +16,21 @@
 typedef struct{
 		char command[20];
 		char filename[30];
+		char subfolder[30];
+		char username_password[100];
 		int file_slice;
 		long int data_length;
 
 }packet_t;
 
+
 typedef struct{
 		int serv_no;
 		int total_files;
+		int total_folders;
 		char filename[100][30];
 		char file_slice[100][2];
+		char subfolder[100][30];
 }list_t;
 
 typedef struct{
@@ -44,8 +49,10 @@ struct configure{
 typedef enum{dfs1=0,dfs2,dfs3,dfs4}dfs_t;
 
 	char files[100][30] = {0};
+	char subfolder[100][30] = {0};
 	int part_flag[100][5] = {0};	
 	int file_counter = 0;
+	int folder_counter = 0;
 
 int tcp_socket[4] = {0};
 
@@ -91,9 +98,11 @@ void main(int argc, char *argv[])
   char command[10] = {0}, filename[20] = {0};
   uint64_t ip_addr, port;
    int packet_combo[4][4][2] = {{{3,0},{0,1},{1,2},{2,3}},{{0,1},{1,2},{2,3},{3,0}},{{1,2},{2,3},{3,0},{0,1}},{{2,3},{3,0},{0,1},{1,2}}};     
- 
+ char subf[30]= {0},temp[30]={0};
   packet_t packet;
+  int password_accepted = 0;
 
+	struct timeval timeout = {1,0};
 
   char key = 10;	
   memset(&packet,0,sizeof(packet));
@@ -145,10 +154,14 @@ void main(int argc, char *argv[])
 	{
 	   char username[100] = {0};
 	   setsockopt(tcp_socket[i], SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+
+       
+	   setsockopt(tcp_socket[i], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+
 	  sprintf(username,"%s %s",conf.username,conf.password);
-	  
+	  strcpy(packet.username_password,username);
 	  sendto(tcp_socket[i],username, 100, 0, (struct sockaddr *)&dfs[i],sizeof(dfs[i]));
-	  int password_accepted = 0;
+	  password_accepted = 0;
 	  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
 	  if(password_accepted)
 	  {
@@ -165,21 +178,55 @@ void main(int argc, char *argv[])
 	}
   }    
   	
-
+/*
+	  password_accepted = 0;
+	  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
+	  if(password_accepted)
+	  {
+		printf("\nLogin Successful\n");
+	  }
+	  else
+          {
+         	printf("Falied to Login, Password Not mactched \n");
+		exit(-1);
+	  } 
+*/
 
 	        
   while(1)
   {
 	// Command Menu
-    printf("\n Enter any of the Following Commands  \n 1. GET [file_name] \n 2. PUT [file_name] \n 3. LIST \n");
+    printf("\n Enter any of the Following Commands  \n 1. GET [file_name] \n 2. PUT [file_name] \n 3. LIST \n 4. MKDIR [foldername_name]\n");
     
     bzero(inp,50);
+    bzero(subf,30);
     bzero(&packet,sizeof(packet));
   	// Recieve the command
 
     scanf (" %[^\n]%*c", inp);
+    
+    sscanf(inp,"%s %s %s",packet.command,packet.filename,subf);
+    if(strcmp(packet.command,"list")==0  || strcmp(packet.command,"mkdir")==0)
+    {
+	if((packet.filename[strlen(packet.filename)-1]) != '/'  && strlen(packet.filename))  
+	{
+		packet.filename[strlen(packet.filename)] = '/';
+	}
+	sprintf(packet.subfolder,"%s",packet.filename);
+    }  
+    else
+    {
+	if((subf[strlen(subf)-1]) != '/' && strlen(subf))
+	{
+		subf[strlen(subf)] = '/';
+	}
 
-    sscanf(inp,"%s %s",packet.command,packet.filename);
+	    sprintf(packet.subfolder,"%s",subf);  
+    }
+
+	printf("Subfolder path %s\n",packet.subfolder);
+	
+
 
 	// Put the file into the server	
    	 if(((strcmp(packet.command,"put")==0) ) && (*(packet.filename) != '\0')) // Check if the filename is empty or not
@@ -234,8 +281,22 @@ void main(int argc, char *argv[])
 			    {
 		         	
 			    	int alive_server = send(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&packet, sizeof(packet), MSG_NOSIGNAL);
-				struct timeval timeout = {0,5000};
-				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+	
+							
+				  password_accepted = 0;
+				  recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&password_accepted,sizeof(int), 0); 
+				  if(password_accepted)
+				  {
+					printf("\nLogin Successful\n");
+				  }
+				  else
+				  {
+				 	printf("Falied to Login, Password Not mactched \n");
+					//continue;
+					//exit(-1);
+				  } 
+			
+		
 				//recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
 
 				//printf("Server%d sendto reply %d\n",packet_combo[md5][packet.file_slice][serv],alive_server); 
@@ -249,6 +310,7 @@ void main(int argc, char *argv[])
 				    send(tcp_socket[packet_combo[md5][packet.file_slice][serv]], buf, packet.data_length , MSG_NOSIGNAL);
 
 				recv(tcp_socket[packet_combo[md5][packet.file_slice][serv]],&alive_server ,sizeof(int), 0);	 
+				timeout.tv_sec = 1;
 				timeout.tv_usec = 0;    
 				setsockopt(tcp_socket[packet_combo[md5][packet.file_slice][serv]], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
 
@@ -294,7 +356,6 @@ void main(int argc, char *argv[])
 		printf("\n\nPrinting the List of files on all the servers... \n\n");
 		for(int i=0;i<file_counter;i++)
 		{
-			//printf("%d %s %d %d %d %d \n",i+1,files[i],part_flag[i][1],part_flag[i][2],part_flag[i][3],part_flag[i][4]);
 			if(part_flag[i][0] == 4)
 			{
 				printf("%d) %s\n",i+1,files[i]);
@@ -304,6 +365,13 @@ void main(int argc, char *argv[])
 				printf("%d) %s Incomplete\n",i+1,files[i]);
 			}
 		}
+		printf("\n\nPrinting the List of Sub-Folders on all the servers... \n\n");
+		for(int i=0;i<folder_counter;i++)
+		{
+			printf("%d) %s\n",i+1,subfolder[i]);
+		}
+
+		
 
 	 }
 
@@ -313,9 +381,11 @@ void main(int argc, char *argv[])
 		packet_t p = {0};
 		get_t getp={0};
 		strcpy(p.command,"list");
+		strcpy(p.subfolder,packet.subfolder);
 		lister(p);
 		int rcv_part_flag[5] = {0};
 		long int rcv_size[4] = {0};
+
 		for(int i =0;i<file_counter;i++)
 		{
 			if(strcmp(files[i],packet.filename)==0)
@@ -329,6 +399,23 @@ void main(int argc, char *argv[])
 					for(int j=0;j<4;j++)
 					{
 						send(tcp_socket[j],&packet, sizeof(packet), MSG_NOSIGNAL);
+	
+					  password_accepted = 0;
+					  recv(tcp_socket[j],&password_accepted,sizeof(int), 0); 
+
+					  if(password_accepted)
+					  {
+						printf("\nLogin Successful\n");
+					  }
+					  else
+					  {
+					 	printf("Falied to Login, Password Not mactched \n");
+						//continue;
+						//exit(-1);
+					  } 
+
+				
+
 						recv(tcp_socket[j],&getp, sizeof(getp), MSG_NOSIGNAL);
 						//printf("%s %d)%ld %d)%ld \n",files[i],getp.packet_number[0],getp.packet_sizes[0],getp.packet_number[1],getp.packet_sizes[1]);
 						
@@ -407,7 +494,33 @@ void main(int argc, char *argv[])
 				printf("Incorrect Filename, File Doesnt Exist\n");
 			}
 		}
- 		
+ 
+          }
+	  else if((strcmp(packet.command,"mkdir")==0) && (*(packet.subfolder) != '\0'))
+	  {
+		
+		
+		for(int i =0;i<4;i++)
+		{
+			send(tcp_socket[i],&packet, sizeof(packet), MSG_NOSIGNAL);
+
+				
+					  password_accepted = 0;
+					  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
+					  if(password_accepted)
+					  {
+						printf("\nLogin Successful\n");
+					  }
+					  else
+					  {
+					 	printf("Falied to Login, Password Not mactched \n");
+						//continue;
+						//exit(-1);
+					  } 
+
+				
+
+		}
           }
 	  else if(strcmp(packet.command,"exit")==0)
 	  {
@@ -439,13 +552,26 @@ void lister(packet_t packet)
 		char parts[20][4]={0};
 		send(tcp_socket[i],&packet, sizeof(packet), MSG_NOSIGNAL);
 
-		//struct timeval timeout = {0,5000};
-		//setsockopt(tcp_socket[0], SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,sizeof(struct timeval));
+				
+					  int  password_accepted = 0;
+					  recv(tcp_socket[i],&password_accepted,sizeof(int), 0); 
+					  if(password_accepted)
+					  {
+						printf("\nLogin Successful\n");
+					  }
+					  else
+					  {
+					 	printf("Falied to Login, Password Not mactched \n");
+						//return;
+					  } 
+
+				
 
 		
 
 		
 		long int rec;
+
 		rec = recv(tcp_socket[i],&list[i], sizeof(list), 0);
 		//printf("Files %d Recived list of %ld\n",list[i].total_files,rec);
 		
@@ -453,8 +579,12 @@ void lister(packet_t packet)
 		}
 		
 		bzero(files,300);
+		bzero(subfolder,300);
+
 		bzero(part_flag,sizeof(int)*500);
+
 		file_counter = 0;
+		folder_counter = 0;
 		for(int i=0;i<4;i++)
 		{
 			for(int j=0;j<list[i].total_files;j++)
@@ -471,7 +601,6 @@ void lister(packet_t packet)
 					else if(k == file_counter)
 					{
 						strcpy(files[file_counter],list[i].filename[j]);
-						//printf("%d %d \n",list[i].file_slice[j][0]-48,list[i].file_slice[j][1]-48);
 						part_flag[file_counter][list[i].file_slice[j][0]-48] = 1;	
 						part_flag[file_counter][list[i].file_slice[j][1]-48] = 1;
 						file_counter++;
@@ -481,6 +610,24 @@ void lister(packet_t packet)
 	
 				}
 
+			}
+
+			for(int j=0;j<list[i].total_folders;j++)
+			{
+				for(int k=0;k<folder_counter+1;k++)
+				{
+					if(strcmp(list[i].subfolder[j],subfolder[k]) == 0)
+					{
+						break;
+					}
+					else if(k == folder_counter)
+					{
+						strcpy(subfolder[folder_counter],list[i].subfolder[j]);
+						folder_counter++;
+						break;
+					}
+				}
+				
 			}
 					
 			
@@ -517,7 +664,7 @@ unsigned char file_md5_counter(char *filename,size_t filesize, FILE *f)
     printf("%x",  md5s[i]);
 
   }  
-  printf("\nRemmainder - %d  ",md5s[15]%4);
+  printf("\nRemainder - %d  ",md5s[15]%4);
   free(buf);
   return (md5s[15]%4);
 
