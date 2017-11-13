@@ -206,7 +206,7 @@ void main(int argc, char *argv[])
     scanf (" %[^\n]%*c", inp);
     
     sscanf(inp,"%s %s %s",packet.command,packet.filename,subf);
-    if(strcmp(packet.command,"list")==0  || strcmp(packet.command,"mkdir")==0)
+    if(strcmp(packet.command,"LIST")==0  || strcmp(packet.command,"MKDIR")==0)
     {
 	if((packet.filename[strlen(packet.filename)-1]) != '/'  && strlen(packet.filename))  
 	{
@@ -229,7 +229,7 @@ void main(int argc, char *argv[])
 
 
 	// Put the file into the server	
-   	 if(((strcmp(packet.command,"put")==0) ) && (*(packet.filename) != '\0')) // Check if the filename is empty or not
+   	 if(((strcmp(packet.command,"PUT")==0) ) && (*(packet.filename) != '\0')) // Check if the filename is empty or not
  	  {
 	     printf("command filename %s %s\n",packet.command,packet.filename);
 		
@@ -352,7 +352,7 @@ void main(int argc, char *argv[])
 
           }
 
-   	 else if(((strcmp(packet.command,"list")==0) )) 
+   	 else if(((strcmp(packet.command,"LIST")==0) )) 
 	 {	
 		lister(packet);
 		
@@ -379,11 +379,11 @@ void main(int argc, char *argv[])
 	 }
 
 	
-	  else if(strcmp(packet.command,"get") == 0 && (*(packet.filename) != '\0'))
+	  else if(strcmp(packet.command,"GET") == 0 && (*(packet.filename) != '\0'))
 	  {
 		packet_t p = {0};
 		get_t getp={0};
-		strcpy(p.command,"list");
+		strcpy(p.command,"LIST");
 		strcpy(p.subfolder,packet.subfolder);
 		lister(p);
 		int rcv_part_flag[5] = {0};
@@ -497,7 +497,7 @@ void main(int argc, char *argv[])
 		}
  
           }
-	  else if((strcmp(packet.command,"mkdir")==0) && (*(packet.subfolder) != '\0'))
+	  else if((strcmp(packet.command,"MKDIR")==0) && (*(packet.subfolder) != '\0'))
 	  {
 		
 		
