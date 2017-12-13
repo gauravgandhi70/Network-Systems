@@ -11,6 +11,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include<time.h>
+#include <openssl/md5.h>
+#include <sys/stat.h>
+
 #define MAXLINE 4096 /*max text line length*/
 #define SERV_PORT 5000 /*port*/
 #define LISTENQ 8 /*maximum number of client connections*/
@@ -46,23 +49,20 @@ void find_case(char *met,char *url, char *ver);
 
 int hostname_to_ip(char * hostname , char* ip);
 
-void file_md5_counter(char *filename,char *md5s);
-
-void file_md5_counter(char *filename,char *md5s)
+void file_md5_counter(char *filename,unsigned char *md5)
 {
 
-  char *buf = NULL;
-  unsigned char md5s[MD5_DIGEST_LENGTH] ={0}; //(char*)malloc(MD5_DIGEST_LENGTH); 
-
  
  
+  unsigned char md5s[MD5_DIGEST_LENGTH] = {0};
   MD5(filename, strlen(filename), md5s);
-  printf("MD5 (%s) = ", filename);
-  for (int i=0; i < MD5_DIGEST_LENGTH; i++)
+  
+ // for (int i=0; i < MD5_DIGEST_LENGTH; i++)
   {
-    printf("%x",  md5s[i]);
+    sprintf(md5,"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",md5s[0],md5s[1],md5s[2],md5s[3],md5s[4],md5s[5],md5s[6],md5s[7],md5s[8],md5s[9],md5s[10],md5s[11],md5s[12],md5s[13],md5s[14],md5s[15]);
 
   }  
+  //printf("md5sum for %s is %s\n",filename,md5);
   
 }
 
@@ -171,11 +171,12 @@ struct hostent* host;
 struct sockaddr_in host_addr;
 int portf=0,servsock,n,port=0,i,sockfd1;
 char buf[1000],method[300],url[300],version[10];
-char md5s[MD5_DIGEST_LENGTH];
+unsigned char md5s[MD5_DIGEST_LENGTH] = {0};
 char* temp=NULL;
 bzero((char*)buf,500);
 recv(connfd,buf,500,0);
 sscanf(buf,"%s %s %s",method,url,version);
+file_md5_counter(url,md5s);
 
 if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp(version,"HTTP/1.0",8)==0))&&(strncmp(url,"http://",7)==0))
 {
@@ -247,23 +248,25 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	char usecached = 0;
 
 	if(founddata)
-	{	int t;
+	{	int min,sec,diff;
 		//printf("FoundData\n");
-		sscanf(founddata,"%*s %d",&t);
-		if(t == timeinfo->tm_min)
+		sscanf(founddata,"%*s %d %d",&min,&sec);
+		diff = (method,timeinfo->tm_min*60 +timeinfo->tm_sec - min*60 - sec);
+		diff  = abs(diff);
+		if(diff < conf.cache_timeout)
 		{
 			usecached = 1;	
-			printf("Using Cached\n");
+			
 			free(cdata);
 		}
 		else
 		{
 			fclose(fptr);
-			printf("\nUsing Non Cached\n");
+			
 			fptr = fopen("cachedata.txt","w+");
 			
 			char c[200] = {0};
-			sprintf(c,"%s %02d\n",method,timeinfo->tm_min);
+			sprintf(c,"%s %02d %02d\n",method,timeinfo->tm_min,timeinfo->tm_sec);
 			int i=0;
 			while(c[i])
 			{
@@ -279,20 +282,33 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	else
 	{
 		printf("Data Not found; Created Entry\n");
-		fprintf(fptr,"%s %02d\n",method,timeinfo->tm_min);
+		fprintf(fptr,"%s %02d %02d\n",method,timeinfo->tm_min,timeinfo->tm_sec);
 		fclose(fptr);
 		free(cdata);
 	}
 	
+	char filepath[100] = {0};
+	sprintf(filepath,"./%s/%s",url,md5s);
 	
+	FILE *f2 = fopen(filepath,"r");
 
 	
-	if(usecached)
+	if(usecached && f2)
 	{
+		printf("Using Cached\n");
 
+		fseek(f2,0,SEEK_END);
+		size_t file_size=ftell(f2);
+		fseek(f2,0,SEEK_SET);
+
+		char *data = (char*)malloc(file_size);
+		int n = fread(data,1,file_size,f2);
+		send(connfd,data,n,0);
+		
 	}	
 	else
 	{
+		printf("Using Non Cached\n");
 		if(portf==1)
 		{
 			temp=strtok(NULL,"/");
@@ -326,8 +342,27 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 			sprintf(buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n",temp,version,url);
 		else
 			sprintf(buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n",version,url);
+
+		char folder[100] = {0},delete[100]= {0};
+
+
+		//sprintf(folder,"%s %s","mkdir",url);
+		struct stat st = {0};
+		if (stat(url, &st) == -1) {
+		    mkdir(url, 0700);
+		    printf("Folder Created\n");
+        	   }
+
+
+		sprintf(delete,"%s -f %s","rm",filepath);
+		system(delete);
+		
+		
+
 		n=send(sockfd1,buf,strlen(buf),0);
 	
+		//printf("%s Created File for path %s\n",md5s,temp);
+		FILE *f1 = fopen(filepath,"w");
 
 		if(n<0)
 			perror("Cant Write to socket");
@@ -337,10 +372,14 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 			{
 			bzero(buf,sizeof(buf));
 			n=recv(sockfd1,buf,500,0);
+			fwrite(buf, 1,n,f1);
 			if(!(n<=0))
 			send(connfd,buf,n,0);
 			}while(n>0);
+		
 		}
+		fclose(f1);
+	
 	}
 }
 else
