@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include<time.h>
 #define MAXLINE 4096 /*max text line length*/
 #define SERV_PORT 5000 /*port*/
 #define LISTENQ 8 /*maximum number of client connections*/
@@ -45,6 +46,25 @@ void find_case(char *met,char *url, char *ver);
 
 int hostname_to_ip(char * hostname , char* ip);
 
+void file_md5_counter(char *filename,char *md5s);
+
+void file_md5_counter(char *filename,char *md5s)
+{
+
+  char *buf = NULL;
+  unsigned char md5s[MD5_DIGEST_LENGTH] ={0}; //(char*)malloc(MD5_DIGEST_LENGTH); 
+
+ 
+ 
+  MD5(filename, strlen(filename), md5s);
+  printf("MD5 (%s) = ", filename);
+  for (int i=0; i < MD5_DIGEST_LENGTH; i++)
+  {
+    printf("%x",  md5s[i]);
+
+  }  
+  
+}
 
 void read_conf_file(void)
 {
@@ -107,6 +127,7 @@ int main (int argc, char **argv)
 struct hostent* host;
  
  signal(SIGINT,cleanup_routine);
+ system("rm -f IP_cache.txt");
  //Create a socket for the soclet
  //If sockfd<0 there was an error in the creation of the socket
   
@@ -141,7 +162,6 @@ struct hostent* host;
    clilen = sizeof(cliaddr);
   //accept a connection
   connfd = accept (listenfd, (struct sockaddr *) &cliaddr, &clilen);
-  printf("\nSocket %d Opened \n ",cliaddr.sin_port);
    
   
 #if FORKING
@@ -151,6 +171,7 @@ struct hostent* host;
 struct sockaddr_in host_addr;
 int portf=0,servsock,n,port=0,i,sockfd1;
 char buf[1000],method[300],url[300],version[10];
+char md5s[MD5_DIGEST_LENGTH];
 char* temp=NULL;
 bzero((char*)buf,500);
 recv(connfd,buf,500,0);
@@ -182,54 +203,144 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}
 
 	sprintf(url,"%s",temp);
-	hostname_to_ip(url,ipaddr);
-
-	if(portf==1)
+	
+	int blocked = hostname_to_ip(url,ipaddr);
+	if(blocked == -2)
 	{
-		temp=strtok(NULL,"/");
-		port=atoi(temp);
+	
+		char err[200] = {0};
+		printf("400 Bad Request: Wrong method %s\n",method);
+		strcat(version," 400 Bad Request\n");	
+		write(connfd, version, strlen(version));	
+		sprintf(err,"<html><body><font size = 6><b>ERROR 403 Forbidden: %s <font></body></html>",url);
+		strcpy(length,"Content-length: ");
+		itoa (strlen(err), status, 10 );
+		strcat(length,status);
+		strcat(length,"\n");
+		write(connfd, length, strlen(length));
+		write(connfd, "Content-Type: html\n\n", 20); 
+		write(connfd,err,strlen(err));
+
+		close(connfd);
+		close(listenfd);
+		_exit(0);  
+
 	}
-	//strcat(method,"^]");
-	temp=strtok(method,"//");
-	temp=strtok(NULL,"/");
 
-	if(temp!=NULL)
-		temp=strtok(NULL,"\n");
+	  time_t rawtime;
+	  struct tm * timeinfo;
 
-	//printf("\npath = %s\nPort = %d\n",temp,port);
-
-	bzero(&host_addr,sizeof(host_addr));
-	host_addr.sin_port=htons(port);
-	host_addr.sin_family=AF_INET;
-	host_addr.sin_addr.s_addr =  inet_addr(ipaddr);
-
-	sockfd1=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-	servsock=connect(sockfd1,(struct sockaddr*)&host_addr,sizeof(struct sockaddr));
+	  time ( &rawtime );
+	  timeinfo = localtime ( &rawtime );
 
 	
-	if(servsock<0)
-		perror("Connection Problem");
-	//printf("\n%s\n",buf);
-	bzero(buf,sizeof(buf));
+	FILE *fptr = fopen("cachedata.txt","a+");
 
-	if(temp!=NULL)
-		sprintf(buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n",temp,version,url);
-	else
-		sprintf(buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n",version,url);
-	n=send(sockfd1,buf,strlen(buf),0);
-	printf("\n%s\n",buf);
+	fseek(fptr,0,SEEK_END);
+	size_t file_size=ftell(fptr);
+	fseek(fptr,0,SEEK_SET);
+	
+	char *cdata = (char*)malloc(file_size);
+	fread(cdata,1,file_size,fptr);
+	char *founddata = strstr(cdata,method);
+	
+	char usecached = 0;
 
-	if(n<0)
-		perror("Cant Write to socket");
+	if(founddata)
+	{	int t;
+		//printf("FoundData\n");
+		sscanf(founddata,"%*s %d",&t);
+		if(t == timeinfo->tm_min)
+		{
+			usecached = 1;	
+			printf("Using Cached\n");
+			free(cdata);
+		}
+		else
+		{
+			fclose(fptr);
+			printf("\nUsing Non Cached\n");
+			fptr = fopen("cachedata.txt","w+");
+			
+			char c[200] = {0};
+			sprintf(c,"%s %02d\n",method,timeinfo->tm_min);
+			int i=0;
+			while(c[i])
+			{
+				*founddata = c[i];
+				i++;founddata++;
+			}
+			
+			fwrite(cdata, 1,file_size,fptr);
+			fclose(fptr);
+			free(cdata);
+		}
+	}
 	else
 	{
-		do
+		printf("Data Not found; Created Entry\n");
+		fprintf(fptr,"%s %02d\n",method,timeinfo->tm_min);
+		fclose(fptr);
+		free(cdata);
+	}
+	
+	
+
+	
+	if(usecached)
+	{
+
+	}	
+	else
+	{
+		if(portf==1)
 		{
+			temp=strtok(NULL,"/");
+			port=atoi(temp);
+		}
+		//strcat(method,"^]");
+		temp=strtok(method,"//");
+		temp=strtok(NULL,"/");
+
+		if(temp!=NULL)
+			temp=strtok(NULL,"\n");
+
+		//printf("\npath = %s\nPort = %d\n",temp,port);
+
+		bzero(&host_addr,sizeof(host_addr));
+		host_addr.sin_port=htons(port);
+		host_addr.sin_family=AF_INET;
+		host_addr.sin_addr.s_addr =  inet_addr(ipaddr);
+
+		sockfd1=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+		servsock=connect(sockfd1,(struct sockaddr*)&host_addr,sizeof(struct sockaddr));
+
+	
+		if(servsock<0)
+			perror("Connection Problem");
+		//printf("\n%s\n",buf);
 		bzero(buf,sizeof(buf));
-		n=recv(sockfd1,buf,500,0);
-		if(!(n<=0))
-		send(connfd,buf,n,0);
-		}while(n>0);
+
+
+		if(temp!=NULL)
+			sprintf(buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n",temp,version,url);
+		else
+			sprintf(buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n",version,url);
+		n=send(sockfd1,buf,strlen(buf),0);
+	
+
+		if(n<0)
+			perror("Cant Write to socket");
+		else
+		{
+			do
+			{
+			bzero(buf,sizeof(buf));
+			n=recv(sockfd1,buf,500,0);
+			if(!(n<=0))
+			send(connfd,buf,n,0);
+			}while(n>0);
+		}
 	}
 }
 else
@@ -345,24 +456,79 @@ int hostname_to_ip(char * hostname , char* ip)
     struct hostent *he;
     struct in_addr **addr_list;
     int i;
+	time_t rawtime;
+  struct tm * timeinfo;
+	 time ( &rawtime );
+  timeinfo = localtime ( &rawtime );
+
+		FILE *f = fopen("blocked.txt","r");
+
+		fseek(f,0,SEEK_END);
+		size_t file_size=ftell(f);
+		fseek(f,0,SEEK_SET);
+		
+	
+
+		char *c = (char*)malloc(file_size);
+		fread(c,1,file_size,f);
+
+		char *blocked = strstr(c,hostname);
+		fclose(f);
+
+	if(blocked)
+	{
+		printf("Blocked \n");
+		free(c);
+		return -2;
+	}
+
+    	
+        FILE *fptr = fopen("IP_cache.txt","a+");
+
+	fseek(fptr,0,SEEK_END);
+	file_size=ftell(fptr);
+	fseek(fptr,0,SEEK_SET);
+	
+	char *filedata = (char*)malloc(file_size);
+
+	fread(filedata,1,file_size,fptr);
+	
+	char *found_ip = strstr(filedata,hostname);
+	if(found_ip)
+	{
+		
+		
+	sscanf(found_ip,"%*s %s",ip);
+	free(filedata);
+		return 0;
+		
+	}
+	else
+	{
+	  if ( (he = gethostbyname( hostname ) ) == NULL) 
+	    {
+		// get the host info
+		perror("gethostbyname");
+		free(filedata);
+		return 1;
+	    }
+	 
+	    addr_list = (struct in_addr **) he->h_addr_list;
+	     
+	    for(i = 0; addr_list[i] != NULL; i++) 
+	    {
+		//Return the first one;
+		strcpy(ip , inet_ntoa(*addr_list[i]) );
+		fprintf(fptr,"%s %s %d\n",hostname,ip,timeinfo->tm_min);
+		fclose(fptr);
+		free(filedata);
+		return 0;
+	    }
+
+		
+	}
+
     
-    FILE *f = fopen("cache")
-    if ( (he = gethostbyname( hostname ) ) == NULL) 
-    {
-        // get the host info
-        perror("gethostbyname");
-        return 1;
-    }
- 
-    addr_list = (struct in_addr **) he->h_addr_list;
-     
-    for(i = 0; addr_list[i] != NULL; i++) 
-    {
-        //Return the first one;
-        strcpy(ip , inet_ntoa(*addr_list[i]) );
-        return 0;
-    }
-     
     return 1;
 }
 

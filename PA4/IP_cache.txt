@@ -1,0 +1,6 @@
+detectportal.firefox.com 184.25.204.8 54
+morse.colorado.edu 128.138.184.74 54
+grad.berkeley.edu 104.196.198.245 56
+umich.edu 141.211.243.251 56
+script.crazyegg.com 13.33.255.140 57
+platform.twitter.com 199.96.57.6 57
