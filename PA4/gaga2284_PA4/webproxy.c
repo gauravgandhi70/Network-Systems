@@ -177,7 +177,7 @@ bzero((char*)buf,500);
 recv(connfd,buf,500,0);
 sscanf(buf,"%s %s %s",method,url,version);
 file_md5_counter(url,md5s);
-
+// Comapre if the method , http version is correct or not
 if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp(version,"HTTP/1.0",8)==0))&&(strncmp(url,"http://",7)==0))
 {
 	strcpy(method,url);
@@ -192,7 +192,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}
 
 	temp=strtok(url,"//");
-
+	// check for port number , if its not specified then use 80
 	if(portf==0)
 	{
 		port=80;
@@ -203,9 +203,12 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 		temp=strtok(NULL,":");
 	}
 
+	// Get the Host address and use it to get the IP address
 	sprintf(url,"%s",temp);
 	
 	int blocked = hostname_to_ip(url,ipaddr);
+
+	//If the website is blocked then reply accordingly and close the connection
 	if(blocked == -2)
 	{
 	
@@ -228,13 +231,15 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 
 	}
 
+	// Get current local time
 	  time_t rawtime;
 	  struct tm * timeinfo;
 
 	  time ( &rawtime );
 	  timeinfo = localtime ( &rawtime );
 
-	
+
+	// Open cachedata.txt file which tracks the cache expiration of all files to check if data is cached or not and is valid or not 	
 	FILE *fptr = fopen("cachedata.txt","a+");
 
 	fseek(fptr,0,SEEK_END);
@@ -247,6 +252,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	
 	char usecached = 0;
 
+	// Check requested data is present in the cache and valid 
 	if(founddata)
 	{	int min,sec,diff;
 		//printf("FoundData\n");
@@ -281,6 +287,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}
 	else
 	{
+		// If file doesnt have cache entry then make one
 		printf("Data Not found; Created Entry\n");
 		fprintf(fptr,"%s %02d %02d\n",method,timeinfo->tm_min,timeinfo->tm_sec);
 		fclose(fptr);
@@ -288,11 +295,11 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}
 	
 	char filepath[100] = {0};
-	sprintf(filepath,"./%s/%s",url,md5s);
+	sprintf(filepath,"cache/%s/%s",url,md5s);
 	
 	FILE *f2 = fopen(filepath,"r");
 
-	
+	// Based on the validity of cached data, either cahced data or data retirved from the server is sent
 	if(usecached && f2)
 	{
 		printf("Using Cached Data\n");
@@ -346,10 +353,10 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 		char folder[100] = {0},delete[100]= {0};
 
 
-		//sprintf(folder,"%s %s","mkdir",url);
+		sprintf(folder,"./cache/%s",url);
 		struct stat st = {0};
-		if (stat(url, &st) == -1) {
-		    mkdir(url, 0700);
+		if (stat(folder, &st) == -1) {
+		    mkdir(folder, 0700);
 		    printf("Folder Created\n");
         	   }
 
