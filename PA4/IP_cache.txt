@@ -1,9 +1,3 @@
-www.caida.org 192.172.226.123 48
-detectportal.firefox.com 65.158.122.32 48
-morse.colorado.edu 128.138.184.74 49
-umich.edu 141.211.243.251 51
-ciscobinary.openh264.org 23.215.104.176 51
-www.nsf.gov 128.150.4.107 52
-grad.berkeley.edu 104.196.198.245 53
-script.crazyegg.com 13.33.255.140 57
-platform.twitter.com 192.229.163.25 57
+morse.colorado.edu 128.138.184.74 23
+umich.edu 141.211.243.251 24
+script.crazyegg.com 13.33.255.140 24

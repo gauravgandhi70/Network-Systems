@@ -1,6 +1,0 @@
-HTTP/1.0 301 Moved Permanently
-Location: https://www.nsf.gov/
-Server: BigIP
-Connection: close
-Content-Length: 0
-

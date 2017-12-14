@@ -288,7 +288,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}
 	
 	char filepath[100] = {0};
-	sprintf(filepath,"cache/%s/%s",url,md5s);
+	sprintf(filepath,"./%s/%s",url,md5s);
 	
 	FILE *f2 = fopen(filepath,"r");
 
@@ -346,10 +346,10 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 		char folder[100] = {0},delete[100]= {0};
 
 
-		sprintf(folder,"./cache/%s",url);
+		//sprintf(folder,"%s %s","mkdir",url);
 		struct stat st = {0};
-		if (stat(folder, &st) == -1) {
-		    mkdir(folder, 0700);
+		if (stat(url, &st) == -1) {
+		    mkdir(url, 0700);
 		    printf("Folder Created\n");
         	   }
 
