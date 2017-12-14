@@ -210,7 +210,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	{
 	
 		char err[200] = {0};
-		printf("400 Bad Request: Wrong method %s\n",method);
+		printf("ERROR 403 Forbidden: Wrong method %s\n",method);
 		strcat(version," 400 Bad Request\n");	
 		write(connfd, version, strlen(version));	
 		sprintf(err,"<html><body><font size = 6><b>ERROR 403 Forbidden: %s <font></body></html>",url);
@@ -295,7 +295,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	
 	if(usecached && f2)
 	{
-		printf("Using Cached\n");
+		printf("Using Cached Data\n");
 
 		fseek(f2,0,SEEK_END);
 		size_t file_size=ftell(f2);
@@ -308,7 +308,7 @@ if(((strncmp(method,"GET",3)==0))&&((strncmp(version,"HTTP/1.1",8)==0)||(strncmp
 	}	
 	else
 	{
-		printf("Using Non Cached\n");
+		printf("Cache Timeout; Getting Data From Server\n");
 		if(portf==1)
 		{
 			temp=strtok(NULL,"/");
@@ -499,20 +499,26 @@ int hostname_to_ip(char * hostname , char* ip)
   struct tm * timeinfo;
 	 time ( &rawtime );
   timeinfo = localtime ( &rawtime );
+		char *blocked = NULL,*c = NULL;
+		size_t file_size = 0;
 
 		FILE *f = fopen("blocked.txt","r");
-
+		if(f)
+		{
 		fseek(f,0,SEEK_END);
-		size_t file_size=ftell(f);
+		file_size=ftell(f);
 		fseek(f,0,SEEK_SET);
+	
+		 c = (char*)malloc(file_size);
+		fread(c,1,file_size,f);
+
+		blocked = strstr(c,hostname);
+		fclose(f);
+
+		}
 		
 	
 
-		char *c = (char*)malloc(file_size);
-		fread(c,1,file_size,f);
-
-		char *blocked = strstr(c,hostname);
-		fclose(f);
 
 	if(blocked)
 	{

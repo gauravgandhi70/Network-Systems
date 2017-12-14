@@ -1,0 +1,662 @@
+HTTP/1.1 200 OK
+Date: Thu, 14 Dec 2017 01:47:47 GMT
+Server: Apache/2.4.25 (FreeBSD) OpenSSL/1.0.1s-freebsd PHP/5.6.30
+Last-Modified: Thu, 14 Dec 2017 00:00:00 GMT
+ETag: "b99d-5604190af751e"
+Accept-Ranges: bytes
+Content-Length: 47517
+Connection: close
+Content-Type: text/html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html prefix="og: http://ogp.me/ns#">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>CAIDA: Center for Applied Internet Data Analysis</title>
+<link href="/c2supportfiles/caida-min.css" type="text/css" rel="stylesheet">
+<link href="/c2supportfiles/print-min.css" media="print" type="text/css" rel="stylesheet">
+<link href="/apple-touch-icon.png" sizes="180x180" rel="apple-touch-icon">
+<link sizes="32x32" href="/favicon-32x32.png" type="image/png" rel="icon">
+<link sizes="16x16" href="/favicon-16x16.png" type="image/png" rel="icon">
+<link href="/manifest.json" rel="manifest">
+<link color="#5bbad5" href="/safari-pinned-tab.svg" rel="mask-icon">
+<meta content="#ffffff" name="theme-color">
+<meta content="website" property="og:type">
+<meta content="CAIDA: Center for Applied Internet Data Analysis" property="og:title">
+<meta content="The Center for Applied Internet Data Analysis (CAIDA) conducts network research and builds research infrastructure to support large-scale data collection, curation, and data distribution to the scientific research community." property="og:description">
+<meta content="http://www.caida.org/home/index.xml" property="og:url">
+<meta content="CAIDA" property="og:site_name">
+<meta content="http://www.caida.org/images/caida_globe_faded_300.png" property="og:image">
+<meta content="CAIDA logo of an orange wireframe globe with the word CAIDA overlaid" property="og:image:alt">
+<meta content="CAIDA: Center for Applied Internet Data Analysis" name="author">
+<meta content="The Center for Applied Internet Data Analysis (CAIDA) conducts network research and builds research infrastructure to support large-scale data collection, curation, and data distribution to the scientific research community." name="description">
+<link rel="stylesheet" href="/c2supportfiles/nivo-slider/nivo-slider.css" type="text/css" media="screen">
+<link rel="stylesheet" href="/c2supportfiles/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<style type="text/css">
+   .feedtable { border-spacing: 0px 0px;}
+   .feedtable tr {width: 100%;}
+   .feedtable td { padding: 2px 0px;}
+   .feedtable td+td { font-size: 11px; width: 50px;}
+   .feedtable td:first-child { font-size: 12px; width: 100%;
+     vertical-align: top;
+     -moz-background-clip:border;
+     -moz-background-inline-policy:continuous;
+     -moz-background-origin:padding;
+     background-image:url(/images/arrow_gtgt_grey.png);
+     background-repeat:no-repeat;
+     background-position: 0px 8px;
+     background-attachment: scroll;
+     margin:0 0 2px 4px;
+     padding: 5px 8px 2px 12px;
+   }
+
+
+   .yeartext {font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold;}
+   #content { min-width: 960px; max-width: 1600px; width: auto !important; width: 95%;}
+   #content a:link { text-decoration: none; }
+   #splash {text-align:center;font-size:.6em;}
+   #splash hr {width:50%;margin-top:8px;}
+   #sponsorsparade {clear: both; width: 960px; margin: auto;}
+   #sponsorsparade div { text-align: center; padding: 5px;}
+   #sponsorsparade img { margin: 0px 10px; border-width: 0px;}
+
+
+/* --- dropshadows for images --- */
+.imgshadow {
+    float: left;
+    background: url(/images/shadow_alphamask.png) no-repeat bottom right !important;
+    background: url(/images/shadow.gif) no-repeat bottom right;
+    margin: 10px 0 0 10px !important;
+    margin: 10px 0 0 5px;
+}
+
+.imgshadow img {
+    display: block;
+    position: relative;
+    background-color: #FFFFFF;
+    margin: 0px 6px 6px -10px;
+}
+
+/* --- optimized for home page three column layout --- */
+.column { /* cascades with #feedtablegroup .column */
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 15px;
+    min-width: 295px;
+    max-width: 295px;
+    width: auto !important;
+    width: 295px;
+}
+
+.columnheader {
+    margin-bottom: 0px;
+    border-bottom: medium dotted #CCCCCC;
+    width: 300px;
+}
+
+#feedtablegroup {
+    min-width: 500px; /* arbitrary */
+    max-width: 2000px;
+    width: auto !important;
+
+}
+
+#feedtablegroup .column {
+    min-width: 295px;
+    max-width: 30%; /* allows flex with margin; setting max-width to pixel causes greedyness in IE7*/
+    width: auto !important;
+    width: 30%;
+}
+
+#feedtablegroup .columnheader {
+    width: auto;
+}
+ </style>
+<script type="text/javascript" src="/c2supportfiles/jquery-1.9.0.min.js"></script><script type="text/javascript" src="/c2supportfiles/nivo-slider/jquery.nivo.slider.js"></script><script type="text/javascript">
+   $(document).ready(function() {
+     $('#slider').nivoSlider();   
+   });
+ </script>
+<style media="screen, projection" type="text/css">
+/*\*//*/
+@import "/c2supportfiles/TJK_vertmenu_ie5mac-min.css";
+/**/
+</style>
+<script src="/c2supportfiles/TJK_vertmenu-min.js" type="text/javascript"></script>
+<!--[if lt IE 7]>
+<noscript>
+<style type="text/css" media="screen">
+@import "/c2supportfiles/TJK_vertmenu_noscript-min.css";
+</style>
+</noscript>
+<script defer src="/c2supportfiles/pngfix_ie6-min.js" type="text/javascript"></script>
+<![endif]-->
+</head>
+<body bgcolor="white" text="black" link="blue" alink="red" vlink="#770077">
+<div id="root">
+<a tabindex="-1" href="#content" id="contentskiplink">Skip to Content</a>
+<div id="caidabluebar">
+<div id="caidaglobe">
+<img src="/images/caida_globe_faded.png" alt="[CAIDA - Center for Applied Internet Data Analysis logo]" border="0" width="141" height="132"></div>
+<div id="caidatextfull">
+<div title="CAIDA: Providing tools and analyses promoting the engineering and maintenance of a robust, scalable global Internet infrastructure">Center&nbsp;for Applied&nbsp;Internet&nbsp;Data&nbsp;Analysis</div>
+</div>
+<div id="pageheader_sidebox">
+<div id="pageheader_searchbox">
+<form method="GET" action="https://duckduckgo.com/" id="search">
+<input name="q" value="" placeholder="Search CAIDA" type="text" id="ddg-site-search"><input name="sites" value="caida.org" type="hidden"><input value="Search" type="submit" id="ddg-search-button">
+</form>
+</div>
+<div id="pageheader_linklist">
+<div>
+<a title="Make a Tax-deductible Donation to CAIDA" href="/home/donate/">DONATE</a>
+</div>
+<div>
+<a title="Contact and Visitor Information Page" href="/home/contactinfo/">CONTACT US</a>
+</div>
+</div>
+</div>
+</div>
+<div id="outercontent">
+<div id="tabnavbar">
+<ul id="TJK_dropDownMenu">
+<li class="selectedtab">
+<a title="CAIDA Home Page" href="/home/">HOME</a>
+<ul>
+<li>
+<a title="About CAIDA" href="/home/about/">About</a>
+</li>
+<li>
+<a title="A summary of CAIDA's research goals and plans" href="/home/about/progplan/progplan2014/">Program&nbsp;Plan</a>
+</li>
+<li>
+<a title="A report on CAIDA research initiatives, project progress and results, etc." href="/home/about/annualreports/2016/">Annual&nbsp;Report</a>
+</li>
+<li>
+<a title="Becoming a CAIDA member" href="/home/about/joining/">Joining CAIDA</a>
+</li>
+<li>
+<a title="Staff members list" href="/home/staff/">Staff</a>
+</li>
+<li>
+<a title="Job postings at CAIDA" href="/home/jobs/">Jobs</a>
+</li>
+<li>
+<a title="Data Stewardship Agreements" href="/home/legal/">Legal Agreements</a>
+</li>
+<li>
+<a title="How to use specific CAIDA resources" href="/home/how-to/">How-To</a>
+</li>
+<li>
+<a title="CAIDA Blog: According to the Best Available Data" href="http://blog.caida.org/">Blog</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="Research at CAIDA" href="/research/">RESEARCH</a>
+<ul>
+<li>
+<a title="Results of research on Internet routing" href="/research/routing/">Routing</a>
+</li>
+<li>
+<a title="Results of research on Internet topology" href="/research/topology/">Topology</a>
+</li>
+<li>
+<a title="Results of research on the security of Internet infrastructure and analysis of malicious activities" href="/research/security/">Security</a>
+</li>
+<li>
+<a title="Results from Internet traffic analysis research" href="/research/traffic-analysis/">Traffic&nbsp;Analysis</a>
+</li>
+<li>
+<a title="Research related to Internet economics and policy" href="/research/policy/">Economics and Policy</a>
+</li>
+<li>
+<a title="Research activities on techniques for visualizing the Internet" href="/research/visualization/">Visualization</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="Data Collection at CAIDA" href="/data/">DATA</a>
+<ul>
+<li>
+<a title="Data overview chart and Access to CAIDA datasets and related request forms" href="/data/overview/">Overview</a>
+</li>
+<li>
+<a title="Promotion of Data Sharing at CAIDA" href="/data/sharing/">Data&nbsp;Sharing</a>
+</li>
+<li>
+<a title="Distribution Statistics for CAIDA Online Datasets" href="/data/about/">Distribution&nbsp;Statistics</a>
+</li>
+<li>
+<a title="How to document a data collection" href="/data/how-to/how-to_document_data.xml">How-to</a>
+</li>
+<li>
+<a title="Frequently Asked Questions about CAIDA Data usage" href="/data/data-usage-faq.xml">Data&nbsp;Usage&nbsp;FAQ</a>
+</li>
+<li>
+<a title="Publications by non-CAIDA researchers using CAIDA data" href="/data/publications/">Papers&nbsp;using&nbsp;CAIDA&nbsp;Data</a>
+</li>
+<li>
+<a title="Acceptable Use Agreement (AUA)" href="/data/../home/legal/aua/">Acceptable Use Agreement</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="CAIDA Tools and Software" href="/tools/">TOOLS</a>
+<ul>
+<li>
+<a title="CAIDA supported tools" href="/tools/./">Overview</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="CAIDA Interactive Services" href="/interactive/">INTERACTIVE</a>
+<ul>
+<li>
+<a title="Ranking of ASes and organizations" href="http://as-rank.caida.org/">AS Rank</a>
+</li>
+<li>
+<a title="Internet Measurement Data Catalog (IMDC DatCat)" href="http://imdc.datcat.org/">DatCat</a>
+</li>
+<li>
+<a title="DNS Decoding database" href="http://ddec.caida.org/">DDec</a>
+</li>
+<li>
+<a title="On-demand topology measurement service (restricted access)" href="//www.caida.org/projects/ark/vela/">Vela</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="CAIDA Publications" href="/publications/">PUBLICATIONS</a>
+<ul>
+<li>
+<a title="Papers and technical reports by CAIDA personnel and collaborators" href="/publications/papers/">Papers</a>
+</li>
+<li>
+<a title="Presentation slides by CAIDA personnel and collaborators" href="/publications/presentations/">Presentations</a>
+</li>
+<li>
+<a title="CAIDA Blog: According to the Best Available Data" href="http://blog.caida.org/">Blog</a>
+</li>
+<li>
+<a title="Visualizations to help illustrate the results of CAIDA research" href="/publications/visualizations/">Visualizations</a>
+</li>
+<li>
+<a title="Animated images and videos of visualized Internet data" href="/publications/animations/">- Animations</a>
+</li>
+<li>
+<a title="Poster-sized prints illustrating and describing CAIDA visualizations" href="/publications/posters/">- Posters</a>
+</li>
+<li>
+<a title="Annotated bibliography of non-CAIDA networking papers" href="/publications/bib/networking/">Networking Bibliography</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="CAIDA Workshops" href="/workshops/">WORKSHOPS</a>
+<ul>
+<li>
+<a title="Show all recent CAIDA Workshops" href="/workshops/./">Overview</a>
+</li>
+<li>
+<a title="Cyber-security Research Ethics Dialog &amp; Strategy (CREDS) Workshops series" href="/workshops/creds/">CREDS</a>
+</li>
+<li>
+<a title="Workshops on Active Internet Measurements (AIMS) series" href="/workshops/aims/">AIMS</a>
+</li>
+<li>
+<a title="Named Data Network Next Phase project meetings" href="/workshops/ndn/">NDN</a>
+</li>
+<li>
+<a title="Workshop on Internet Economics (WIE) series" href="/workshops/wie/">WIE</a>
+</li>
+<li>
+<a title="Workshop collaborations with WIDE (Japan)" href="/workshops/wide/">CAIDA-WIDE</a>
+</li>
+<li>
+<a title="Related workshops held in collaboration between CAIDA and other groups" href="/workshops/collaborative/">Collaborative</a>
+</li>
+<li>
+<a title="Archive of past CAIDA workshops" href="/workshops/archive/">Archive</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="Projects and Infrastructure" href="/projects/">PROJECTS</a>
+<ul>
+<li>
+<a title="Archipelago Measurement Infrastructure" href="/projects/ark/">Ark</a>
+</li>
+<li>
+<a title="Macroscopic Topology project" href="/projects/macroscopic/">Macroscopic&nbsp;Topology</a>
+</li>
+<li>
+<a title="Cybersecurity project" href="/projects/cybersecurity/">Cybersecurity</a>
+</li>
+<li>
+<a title="The Spoofer project" href="http://spoofer.caida.org/">Spoofer</a>
+</li>
+<li>
+<a title="The UCSD Network Telescope project" href="/projects/network_telescope/">Network Telescope</a>
+</li>
+<li>
+<a title="DHS IMPACT project formerly known as PREDICT" href="/projects/impact/">IMPACT (PREDICT)</a>
+</li>
+<li>
+<a title="Detection and analysis of large-scale Internet infrastructure outages project" href="/projects/ioda/">IODA</a>
+</li>
+<li>
+<a title="The Named Data Networking Next Phase (NDN-NP) project" href="/projects/ndn-np/">Named Data Networking</a>
+</li>
+<li>
+<a title="Internet Measurement Data Catalog" href="/projects/trends/imdc/">IMDC&nbsp;(DatCat)</a>
+</li>
+</ul>
+</li>
+<li>
+<a title="CAIDA Funding" href="/funding/">FUNDING</a>
+<ul>
+<li>
+<a title="Integrated Platform for Applied Network Data Analysis summary and proposal" href="/funding/dibbs-panda/">PANDA</a>
+</li>
+<li>
+<a title="Investigating the Susceptibility of the Internet Topology to Country-level Connectivity Disruption and Manipulation summary and proposal" href="/funding/satc-mapkit/">Mapkit</a>
+</li>
+<li>
+<a title="Sustainable Tools for Analysis and Research on Darknet Unsolicited Traffic summary and proposal" href="/funding/stardust/">STARDUST</a>
+</li>
+<li>
+<a title="Science of Internet Security: Technology and Experimental Research project summary and proposal" href="/funding/sister/">SISTER</a>
+</li>
+<li>
+<a title="Measuring Internet Interconnection Performance Metrics project summary" href="/funding/att-interconnection/">AT&amp;T&nbsp;Interconnection</a>
+</li>
+<li>
+<a title="Software Systems for Surveying Spoofing Susceptibility project summary and proposal" href="/funding/spoofer/">Spoofer</a>
+</li>
+<li>
+<a title="Internet Laboratory for Empirical Network Science: Next Phase project summary and proposal" href="/funding/ilens-np/">iLENS-NP</a>
+</li>
+<li>
+<a title="Mapping Interconnection in the Internet: Colocation, Connectivity and Congestion project summary and proposal" href="/funding/nets-congestion/">Congestion</a>
+</li>
+<li>
+<a title="Modeling IPv6 Adoption: A Measurement-driven Computational Approach project summary and proposal" href="/funding/ipv6-adoption/">IPv6 Adoption</a>
+</li>
+<li>
+<a title="Detecting and Characterizing Internet Traffic Interception Based on BGP Hijacking project summary and proposal" href="/funding/hijacks/">HIJACKS</a>
+</li>
+<li>
+<a title="Economics of Contractual Arrangements for Internet Interconnections project summary and proposal" href="/funding/econ-contract/">Econ-Contract</a>
+</li>
+<li>
+<a title="IMPACT project summary and description (formerly PREDICT)" href="/funding/impact/">IMPACT (PREDICT)</a>
+</li>
+<li>
+<a title="A summary of CAIDA's research goals and plans" href="/funding/../home/about/progplan/progplan2014/">Program&nbsp;Plan</a>
+</li>
+</ul>
+</li>
+</ul>
+<div style="clear:both"></div>
+</div>
+<div id="crumbnavbar">
+<span class="bold">www.caida.org
+            &gt; </span>home</div>
+</div>
+<div id="content">
+<div>
+<div class="column">
+<div class="slider-wrapper theme-default">
+<div class="nivoSlider" id="slider">
+<a title="This visualization represents macroscopic snapshots of IPv4 Internet topology samples captured in January to February 2017. For the IPv4 map, CAIDA collected data from 121 monitors located in 42 countries on 6 continents." href="/research/topology/as_core_network/2017/"><img src="/research/topology/as_core_network/pics/2017/ascore-2017-feb-ipv4-standalone-300h250.png" data-caption="This visualization represents macroscopic snapshots of IPv4 Internet topology samples captured in January to February 2017. For the IPv4 map, CAIDA collected data from 121 monitors located in 42 countries on 6 continents." title="AS Core IPv4 (2017)"></a><a title="Over the past several months, CAIDA, in collaboration with Matthew Luckie at the University of Waikato, has upgraded Rob Beverly's original spoofing measurement system, developing new client tools for measuring IPv4 and IPv6 spoofing capabilities, along with services that provide reporting and allow users to opt-in or out of sharing the data publicly.
+
+Watch the video &quot;What is IP Spoofing?&quot; for an overview of what IP spoofing is and how you can install Spoofer and help.
+" href="/projects/spoofer/"><img src="/images/spoofer-whatisipspoofing_300h250.png" data-caption="Over the past several months, CAIDA, in collaboration with Matthew Luckie at the University of Waikato, has upgraded Rob Beverly's original spoofing measurement system, developing new client tools for measuring IPv4 and IPv6 spoofing capabilities, along with services that provide reporting and allow users to opt-in or out of sharing the data publicly.
+
+Watch the video &quot;What is IP Spoofing?&quot; for an overview of what IP spoofing is and how you can install Spoofer and help.
+" title="Spoofer video: What is IP Spoofing?"></a><a title="We are now deploying small, inexpensive network measurement nodes, based on the Raspberry Pi, in the Ark measurement infrastructure.  Although tiny, a Raspberry Pi is as capable as a desktop system of several generations ago and offers a flexible Linux-powered programmable platform for conducting networking research.  These systems can be placed anywhere that is convenient for a hosting site, including on someone's desk, and the transition from deploying traditional rack-mounted servers to Raspberry Pi's will allow us to scale up the Ark infrastructure." href="/projects/ark/"><img src="/images/ark-raspi-monitor_300h250.png" data-caption="We are now deploying small, inexpensive network measurement nodes, based on the Raspberry Pi, in the Ark measurement infrastructure.  Although tiny, a Raspberry Pi is as capable as a desktop system of several generations ago and offers a flexible Linux-powered programmable platform for conducting networking research.  These systems can be placed anywhere that is convenient for a hosting site, including on someone's desk, and the transition from deploying traditional rack-mounted servers to Raspberry Pi's will allow us to scale up the Ark infrastructure." title="Ark Raspberry Pi-based Network Monitor"></a><a title="We present the BETA version of AS Rank, CAIDA's ranking of Autonomous Systems (AS) (which approximately map to Internet Service Providers). This ranking is derived from topological data collected by CAIDA's Archipelago Measurement Infrastructure and Border Gateway Protocol (BGP) routing data collected by the Route Views Project and RIPE NCC. ASes are ranked by their customer cone size, which is the number of their direct and indirect customers. Note: We do not have data to rank ASes (ISPs) by traffic, revenue, users, or any other non-topological metric. " href="http://as-rank.caida.org/"><img src="/images/asrank-relationshipgraph_300h250.png" data-caption="We present the BETA version of AS Rank, CAIDA's ranking of Autonomous Systems (AS) (which approximately map to Internet Service Providers). This ranking is derived from topological data collected by CAIDA's Archipelago Measurement Infrastructure and Border Gateway Protocol (BGP) routing data collected by the Route Views Project and RIPE NCC. ASes are ranked by their customer cone size, which is the number of their direct and indirect customers. Note: We do not have data to rank ASes (ISPs) by traffic, revenue, users, or any other non-topological metric. " title="AS Rank: Ranking of Autonomous Systems"></a><a title="In addition to understanding the routing policies between networks (autonomous systems), understanding where those networks interconnect is relevant to both technical and economic aspects of the Internet's inter-domain structure and stability. We offer an annotated version of our AS relationships data set that estimates the geographic location of links between pairs of networks." href="/data/as-relationships-geo/"><img src="/images/as-relationships-geo_300h250.png" data-caption="In addition to understanding the routing policies between networks (autonomous systems), understanding where those networks interconnect is relevant to both technical and economic aspects of the Internet's inter-domain structure and stability. We offer an annotated version of our AS relationships data set that estimates the geographic location of links between pairs of networks." title="AS Relationships with geographic notations"></a><a title="A one page poster describing the NSF funded research project, &quot;Detecting and Characterizing Internet Traffic Interception based on BGP Hijacking&quot;." href="/publications/posters/#security"><img src="/images/hijacks-2015-jan-poster_300h250.png" data-caption="A one page poster describing the NSF funded research project, &quot;Detecting and Characterizing Internet Traffic Interception based on BGP Hijacking&quot;." title="BGP Hijacks poster"></a><a title="To visualize large-scale Internet events, such as a large region losing connectivity, or a stealth probe of the entire IPv4 address space, we coordinated views to study the temporal evolution of an event along different dimensions, including geographic spread, topological (address space) coverage, and traffic impact. In early 2011, there was a government-mandated Internet blackout in Egypt, which isolated the country from the rest of the Internet for more than five days. The view pictured combines a geographical representation of Egypt region along with animations of the source addresses observed during the event, both at a global level, and from the 41.0.0.0/8 network delegated to AfriNIC." href="/publications/papers/2014/coordinated_view_internet_events/"><img src="/images/coordinated_view_internet_events_300h250.png" data-caption="To visualize large-scale Internet events, such as a large region losing connectivity, or a stealth probe of the entire IPv4 address space, we coordinated views to study the temporal evolution of an event along different dimensions, including geographic spread, topological (address space) coverage, and traffic impact. In early 2011, there was a government-mandated Internet blackout in Egypt, which isolated the country from the rest of the Internet for more than five days. The view pictured combines a geographical representation of Egypt region along with animations of the source addresses observed during the event, both at a global level, and from the 41.0.0.0/8 network delegated to AfriNIC." title="A coordinated view of the Egypt Internet Blackout (2011)"></a><a title="We analyzed the reputation of a country's Internet (IPv4) addresses by examining the number of blacklisted IPv4 addresses that geolocate to a given country. We compared this indicator with two qualitative measures of each country's governance. We found a correlation exists between perceived corruption and fraction of blacklisted IP addresses." href="/research/policy/country-level-ip-reputation/"><img src="/images/country-level-ip-reputation_300h250.png" data-caption="We analyzed the reputation of a country's Internet (IPv4) addresses by examining the number of blacklisted IPv4 addresses that geolocate to a given country. We compared this indicator with two qualitative measures of each country's governance. We found a correlation exists between perceived corruption and fraction of blacklisted IP addresses." title="Correlating country IP reputation"></a><a title="DatCat lets you find, annotate, and cite data. The goals of the system are: 1) to facilitate searching for and sharing of data among researchers, 2) to enhance documentation of datasets via a public annotation system, and 3) to advance network science by promoting reproducible research. DatCat version 3.0 makes it easier than ever to find Collections of relevant data and get right to downloading them." href="http://imdc.datcat.org/"><img src="/images/logo_datcat_med.png" data-caption="DatCat lets you find, annotate, and cite data. The goals of the system are: 1) to facilitate searching for and sharing of data among researchers, 2) to enhance documentation of datasets via a public annotation system, and 3) to advance network science by promoting reproducible research. DatCat version 3.0 makes it easier than ever to find Collections of relevant data and get right to downloading them." title="DatCat: The Internet Measurement Data Catalog"></a><a title="A visualization of the characteristics of IPv4 &quot;whois&quot; data from the five Regional Internet Registries (RIRs)." href="/research/id-consumption/whois-map/"><img src="/images/whois-20071001_300h250.png" data-caption="A visualization of the characteristics of IPv4 &quot;whois&quot; data from the five Regional Internet Registries (RIRs)." title="IPv4 WHOIS Map (2007)"></a><a title="The DNS workload animated maps show the number of queries and clients seen by one of the .CL nameservers in Chile and its hourly variation along two days of traces beginning on July 3rd 2007 at 21:00 (UTC). The animation provides a view of the world map and colors countries based on the load that each country originates." href="/research/dns/cl/animated_maps/"><img src="/images/dns_workload_cl_med.png" data-caption="The DNS workload animated maps show the number of queries and clients seen by one of the .CL nameservers in Chile and its hourly variation along two days of traces beginning on July 3rd 2007 at 21:00 (UTC). The animation provides a view of the world map and colors countries based on the load that each country originates." title="DNS Workload animated maps"></a><a title="This visualization shows the geographic distribution of DNS clients for anycast instances. We provide two world maps for each root, with individual anycast servers placed on the map at the &quot;center of influence&quot; of its observed clients. Wedges fanning out from each server indicate the direction, distance, and number of clients observed within the bounding angle of the wedge. " href="/research/dns/influence-map/"><img src="/images/logo_influence200701_med.gif" data-caption="This visualization shows the geographic distribution of DNS clients for anycast instances. We provide two world maps for each root, with individual anycast servers placed on the map at the &quot;center of influence&quot; of its observed clients. Wedges fanning out from each server indicate the direction, distance, and number of clients observed within the bounding angle of the wedge. " title="DNS Influence Map of DNS Root Anycast Servers"></a>
+</div>
+</div>
+<div class="captiontext">
+<a href="featured_images.xml">See all Featured Images</a>
+</div>
+<hr>
+<br>
+<div class="columnheader">
+<span class="headertext">How to Help</span>
+</div>
+<div class="messageareas">
+<div class="grccontent">
+<ul class="arrows">
+<li>
+<a href="http://spoofer.caida.org/">Measure your network's hygiene with spoofer</a>
+</li>
+<li>
+<a href="/projects/ark/siteinfo.xml">Hosting an Ark monitor</a>
+</li>
+<li>
+<a href="https://jobs.ucsd.edu/bulletin/job.aspx?jobnum_in=89569">Hiring: Career Research Programmer</a>
+</li>
+<li>
+<a href="https://jobs.ucsd.edu/bulletin/job.aspx?jobnum_in=90887">Hiring: Career Data Administrator</a>
+</li>
+<li>
+<a href="/research/student-projects/">Work on CAIDA projects as a student</a>
+</li>
+<li>
+<a href="donate/">Donate to CAIDA</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="feedtablegroup">
+<div class="column">
+<div class="columnheader">
+<span class="headertext">UPCOMING</span>
+</div>
+<div class="messageareas">
+<div class="rccontent">
+<table summary="CAIDA What's New feed: Upcoming Events" class="feedtable">
+<tr>
+<td><a href="http://www.caida.org/workshops/wie/1712/" title="On December 13-14, 2017, CAIDA and the Massachusetts Institute of Technology (MIT) will host the (invitation-only) 8th interdisciplinary Workshop on Internet Economics (WIE) at the University of California San Diego in La Jolla, CA.
+
+The goal of this workshop series is to provide a forum for researchers, commercial Internet facilities and service providers, technologists, economists, theorists, policy makers, and other stakeholders to empirically inform emerging Internet regulatory and policy debates.">WIE 2017: 8th Workshop on Internet Economics</a></td><td><span style="white-space:nowrap;">Dec 13-14</span></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="columnheader">
+<span class="headertext headerlink"><a href="archived-news.xml">NEW</a></span>
+</div>
+<div class="messageareas">
+<div class="rccontent">
+<table summary="CAIDA What's New main feed" class="feedtable">
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/impact_pi_dec/" title="This slideset was presented at: DHS IMPACT PI Meeting (December 2017)">"DHS IMPACT Project: CAIDA update" (IMPACT PI meeting) slideset</a></td><td>Dec&nbsp;8</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/software_systems_surveying_spoofing_iij/" title="This slideset was presented at: Internet Initiative Japan (IIJ) (November 2017)">"Software Systems for Surveying Spoofing Susceptibility" (IIJ) slideset</a></td><td>Nov&nbsp;30</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/dibbs_ei_wide/" title="This slideset was presented at: CAIDA-WIDE (November 2017)">"DIBBS EI: Platform for Applied Network Data Analysis (PANDA)" slideset</a></td><td>Nov&nbsp;30</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/mapping_our_way_iij/" title="This slideset was presented at: Internet Initiative Japan (IIJ) (November 2017)">"Mapping our Way to a More Secure Internet" (IIJ) slideset</a></td><td>Nov&nbsp;30</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/packetlab_caidawide/" title="This slideset was presented at: CAIDA-WIDE (November 2017)">"PacketLab:A Universal Measurement Endpoint Interface" slideset</a></td><td>Nov&nbsp;22</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/home/jobs/" title="CAIDA's creative, research oriented working environment is intended to be attractive to anyone interested in working at the forefront of Internet development and research.
+
+To submit your resume for consideration or for specific job inquiries for the positions posted on this page, email jobs@caida.org">Job Listings Updated: Career data administrator position, career research programmer position</a></td><td>Nov&nbsp;13</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/detecting_peering_infrastructure_outages_sigcomm/" title="This slideset was presented at: ACM SIGCOMM (August 2017)">"Detecting Peering Infrastructure Outages in the Wild" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/look_at_router_geolocation_imc/" title="This slideset was presented at: ACM Internet Measurement Conference (IMC) (November 2017)">"A Look at Router Geolocation in Public and Commercial Databases" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr>
+<td><a href="https://www.caida.org/publications/presentations/2017/millions_targets_under_attack_imc/" title="This slideset was presented at: ACM Internet Measurement Conference (IMC) (November 2017)">"Millions of Targets Under Attack: a Macroscopic Characterization of the DoS Ecosystem" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/detecting_internet_traffic_interception_route_techex/" title="This slideset was presented at: Internet2 Technology Exchange (October 2017)">"Detecting Internet Traffic Interception based on Route Hijacking" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/challenges_inferring_internet_congestion_imc/" title="This slideset was presented at: ACM Internet Measurement Conference (IMC) (November 2017)">"Challenges in Inferring Internet Congestion Using Throughput Measurements" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/investigating_causes_congestion_african_imc/" title="This slideset was presented at: ACM Internet Measurement Conference (IMC) (November 2017)">"Investigating the Causes of Congestion on the African IXP substrate" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/tcp_congestion_signatures_imc/" title="This slideset was presented at: ACM Internet Measurement Conference (IMC) (November 2017)">"TCP Congestion Signatures" slideset</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/presentations/2017/ioda_cns/" title="This slideset was presented at: Center for Network Systems (CNS) Research Review (October 2017)">"Internet Outage Detection &amp; Analysis" (CNS Research Review) slideset</a></td><td>Oct&nbsp;31</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/presentations/2017/bgp_measurement_live_data_tma/" title="This slideset was presented at: Traffic Monitoring and Analysis Workshop (TMA) (June 2017)">"BGP measurement and live data analysis" slideset</a></td><td>Oct&nbsp;31</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="column">
+<div class="columnheader">
+<span class="headertext headerlink"><a href="https://blog.caida.org/">BLOG</a></span>
+      
+      &nbsp;<a title="CAIDA Blog: &quot;According to the Best Available Data&quot; RSS 2.0 feed" href="https://blog.caida.org/best_available_data/feed"><img src="/images/rss.gif" width="16" height="16" alt="Subscribe to CAIDA Blog: &quot;According to the Best Available Data&quot; RSS 2.0 feed" border="0"></a>&nbsp;<span class="rssinfo">(<a title="CAIDA Blog: &quot;According to the Best Available Data&quot; RSS 2.0 feed" href="https://blog.caida.org/best_available_data/feed">subscribe</a>)</span>
+</div>
+<div class="messageareas">
+<div class="rccontent">
+<table summary="CAIDA Blog: According to the Best Available Data" class="feedtable">
+<tr>
+<td><a href="https://blog.caida.org/best_available_data/2017/05/09/caidas-2016-annual-report/" title="[Executive summary and link below] The CAIDA annual report summarizes CAIDA&amp;#8217;s activities for 2016, in the areas of research, infrastructure, data collection and analysis. Our research projects span Internet topology, routing, security, economics, future Internet architectures, and policy. Our infrastructure, software development, and data sharing activities support measurement-based internet research, both at CAIDA and around [&amp;#8230;]">CAIDA&rsquo;s 2016 Annual Report</a></td><td>May&nbsp;9</td>
+</tr>
+<tr class="zebra">
+<td><a href="https://blog.caida.org/best_available_data/2017/04/18/response-to-rfi-for-future-needs-for-advanced-cyberinfrastructure-to-support-science-and-engineering-research/" title="I sent the following to NSF in response to a recent Request for Information (RFI) for Future Needs for Advanced Cyberinfrastructure to Support Science and Engineering Research. (The format required an abstract and answers to 3 specific questions.) Abstract As the Internet and our dependence on it have grown, the structure and dynamics of the [&amp;#8230;]">Response to RFI for Future Needs for Advanced Cyberinfrastructure to Support Science and Engineering Research</a></td><td>Apr&nbsp;18</td>
+</tr>
+<tr>
+<td><a href="https://blog.caida.org/best_available_data/2017/03/24/why-ip-source-address-spoofing-is-a-problem-and-how-you-can-help/" title="video: http://www.caida.org/publications/animations/security/spoofer-sav-intro information: Software Systems for Surveying Spoofing Susceptibility download: https://spoofer.caida.org/ This material is based on research sponsored by the Department of Homeland Security (DHS) Science and Technology Directorate, Homeland Security Advanced Research Projects Agency, Cyber Security Division (DHS S&amp;#038;T/HSARPA/CSD) BAA HSHQDC-14-R-B0005, and the Government of United Kingdom of Great Britain and Northern Ireland via [&amp;#8230;]">Why IP source address spoofing is a problem and how you can help.</a></td><td>Mar&nbsp;25</td>
+</tr>
+<tr class="zebra">
+<td style="background: center"></td><td align="left"><span class="yeartext">2016</span></td>
+</tr>
+<tr class="zebra">
+<td><a href="https://blog.caida.org/best_available_data/2016/12/18/help-save-the-internet-install-the-new-spoofer-client-v1-1-0/" title="The greatest security vulnerability of the Internet (TCP/IP) architecture is the lack of source address validation, i.e., any sender may put a fake source address in a packet, and the destination-based routing protocols that glue together the global Internet will get that packet to its intended destination. Attackers exploit this vulnerability by sending many (millions [&amp;#8230;]">Help save the Internet: Install the new Spoofer client (v1.1.0)!</a></td><td>Dec&nbsp;18</td>
+</tr>
+<tr>
+<td><a href="https://blog.caida.org/best_available_data/2016/12/17/henya-large-scale-internet-topology-query-system/" title="CAIDA&amp;#8217;s Internet topology mapping experiment running on our Ark infrastructure has collected traceroute-like measurements of the Internet from nodes hosted in academic, commercial, transit, and residential networks around the globe since September 2007. Discovery of the full potential value of this raw data is best served by a rich, easy-to-use interactive exploratory interface. We have [&amp;#8230;]">Henya: Large-Scale Internet Topology Query System</a></td><td>Dec&nbsp;18</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="columnheader">
+<span class="headertext">IN THE NEWS</span>
+</div>
+<div class="messageareas">
+<div class="rccontent">
+<table summary="CAIDA What's New feed: CAIDA In The News" class="feedtable">
+<tr>
+<td><a href="https://www.internetsociety.org/blog/2017/11/story-years-jonathan-b-postel-service-award-winner/" title="kc claffy, this year&rsquo;s Jonathan B. Postel Service Award winner, has been with the Internet from nearly its very beginnings. She&rsquo;s watched its evolution from military project to government-funded point-to-point communication to its current iteration as a private sector behemoth.">Leadership: "The story of kc claffy and measuring the Internet &ndash; 2017 Jonathan B. Postel Service Award winner" (Internet Society)</a></td><td>Nov&nbsp;15</td>
+</tr>
+<tr class="zebra">
+<td><a href="https://www.theregister.co.uk/2017/11/05/caida_study_finds_one_third_of_the_internet_suffered_denial_of_service_attacks_between_2015_and_2017/" title="Even CHARGEN services are hosed, daily, says CAIDA study.
+
+One-third of Internet hosts with IPv4 addresses were subject to denial of service attacks in the last two years.
+
+That's the headline number from a two-year study conducted by the Center for Applied Internet Data Analysis (CAIDA), published last week.">Security: "DoS scum attacked one-third of the 'net between 2015 and 2017" (The Register)</a></td><td>Nov&nbsp;8</td>
+</tr>
+<tr>
+<td><a href="https://www.nsf.gov/news/news_summ.jsp?cntn_id=243566&amp;org=NSF&amp;from=news" title="NSF announces $74.5 million in awards through its Secure and Trustworthy Cyberspace (SaTC) program.">CAIDA: NSF investments aim to address growing cybersecurity challenge (NSF)</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://ucsdnews.ucsd.edu/pressrelease/a_third_of_the_internet_is_under_attack" title="Study by SDSC's CAIDA group finds millions of network addresses subjected to denial-of-service attacks over two-year period.
+    
+    For the first time, researchers have carried out a large-scale analysis of victims of internet denial-of-service (DoS) attacks worldwide. And what they found is, in a phrase from their study, &quot;an eye-opening statistic&quot;.
+    ">Security: "A Third of the Internet is Under Attack" (UCSD News Center)</a></td><td>Nov&nbsp;1</td>
+</tr>
+<tr>
+<td><a href="http://ucsdnews.ucsd.edu/pressrelease/computer-security-experts-honored-for-research-that-stands-the-test-of-time" title="In 2001, David Moore (CAIDA), Geoffrey Voelker (UC San Diego), and Stefan Savage (UC San Diego) published the results of a study that provided the only publicly available data quantifying DoS activity on the Internet. Their research and resulting academic paper won the Best Paper award when it was presented at the 10th USENIX Security Symposium in 2001. Now, 16 years later, that same paper -- &quot;Inferring Internet Denial-of-Service Activity&quot; -- has received the 2017 USENIX Security Test of Time Award.">CAIDA: Computer Security Experts Honored for Research that Stands the Test of Time (UCSD News Center)</a></td><td>Aug&nbsp;17</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="columnheader">
+<span class="headertext headerlink"><a href="/publications/papers/">PAPERS</a></span>
+</div>
+<div class="messageareas">
+<div class="rccontent">
+<table summary="CAIDA What's New feed: New Papers" class="feedtable">
+<tr>
+<td><a href="http://www.caida.org/publications/papers/2017/ipv4_transfer_markets_wild/" title="I. Livadariu, A. Dhamdhere, and A. Elmokashfi, &quot;On IPv4 transfer markets: Analyzing reported transfers and inferring transfers in the wild&quot;, Elsevier Computer Communications Journal, vol. 111, pp. 105--119, Oct 2017.">On IPv4 transfer markets: Analyzing reported transfers and inferring transfers in the wild</a></td><td>Dec&nbsp;4</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/papers/2017/named_data_networking_2016-2017/" title="V. Jacobson, J. Burke, T. Abdelzaher, L. Zhang, B. Zhang, k. claffy, P. Crowley, J. Halderman, C. Papadopoulos, and L. Wang, &quot;Named Data Networking Next Phase (NDN-NP) Project May 2016 - April 2017 Annual Report&quot;, Tech. rep., Named Data Networking (NDN), Nov 2017.">Named Data Networking Next Phase (NDN-NP) Project May 2016 - April 2017 Annual Report</a></td><td>Dec&nbsp;1</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/papers/2017/resilience_deployed_tcp_blind/" title="M. Luckie, &quot;Resilience of Deployed TCP to Blind FIN Attacks&quot;, Tech. rep., Center for Applied Internet Data Analysis (CAIDA), Oct 2017.">Resilience of Deployed TCP to Blind FIN Attacks</a></td><td>Nov&nbsp;9</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/papers/2017/reshaping_african_internet/" title="R. Fanou, F. Valera, P. Francois, and A. Dhamdhere, &quot;Reshaping the African Internet: From Scattered Islands to a Connected Continent&quot;, Elsevier Computer Communications Journal, vol. 113, pp. 25--42, Nov 2017.">Reshaping the African Internet: From Scattered Islands to a Connected Continent</a></td><td>Nov&nbsp;6</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/papers/2017/packetlab/" title="K. Levchenko, A. Dhamdhere, B. Huffaker, k. claffy, M. Allman, and V. Paxson, &quot;PacketLab: A Universal Measurement Endpoint Interface&quot;, in Internet Measurement Conference (IMC), Nov 2017.">PacketLab: A Universal Measurement Endpoint Interface</a></td><td>Oct&nbsp;31</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/papers/2017/challenges_inferring_internet_congestion/" title="S. Sundaresan, D. Lee, X. Deng, Y. Feng, and A. Dhamdhere, &quot;Challenges in Inferring Internet Congestion Using Throughput Measurements&quot;, in Internet Measurement Conference (IMC), Nov 2017.">Challenges in Inferring Internet Congestion Using Throughput Measurements</a></td><td>Oct&nbsp;31</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/papers/2017/investigating_causes_congestion_african/" title="R. Fanou, F. Valera, and A. Dhamdhere, &quot;Investigating the Causes of Congestion on the African IXP substrate&quot;, in Internet Measurement Conference (IMC), Nov 2017.">Investigating the Causes of Congestion on the African IXP substrate</a></td><td>Oct&nbsp;31</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/papers/2017/tcp_congestion_signatures/" title="S. Sundaresan, A. Dhamdhere, M. Allman, and k. claffy, &quot;TCP Congestion Signatures&quot;, in Internet Measurement Conference (IMC), Nov 2017.">TCP Congestion Signatures</a></td><td>Oct&nbsp;31</td>
+</tr>
+<tr>
+<td><a href="http://www.caida.org/publications/papers/2017/millions_targets_under_attack/" title="M. Jonker, A. King, J. Krupp, C. Rossow, A. Sperotto, and A. Dainotti, &quot;A Third of the Internet is Under Attack: a Macroscopic Characterization of the DoS Ecosystem&quot;, in Internet Measurement Conference (IMC), Nov 2017.">Millions of Targets Under Attack: a Macroscopic Characterization of the DoS Ecosystem</a></td><td>Oct&nbsp;25</td>
+</tr>
+<tr class="zebra">
+<td><a href="http://www.caida.org/publications/papers/2017/look_at_router_geolocation/" title="M. Gharaibeh, A. Shah, B. Huffaker, H. Zhang, R. Ensafi, and C. Papadopoulos, &quot;A Look at Router Geolocation in Public and Commercial Databases&quot;, in Internet Measurement Conference (IMC), Nov 2017.">A Look at Router Geolocation in Public and Commercial Databases</a></td><td>Oct&nbsp;11</td>
+</tr>
+</table>
+</div>
+</div>
+<br>
+<div class="rssfeedinfo">
+<a href="https://www.facebook.com/pages/CAIDA-Center-for-Applied-Internet-Data-Analysis/171142049598169"><img src="/images/facebook.gif" width="16" height="16" alt="CAIDA Facebook page" border="0"></a>&nbsp;
+      <a href="https://twitter.com/caidaorg"><img src="/images/twitter.gif" width="16" height="16" alt="CAIDA Twitter feed" border="0"></a>&nbsp;
+      <a href="/home/caida-whatsnew.rss"><img src="/images/rss.gif" width="16" height="16" alt="Subscribe to RSS 2.0 feed" border="0"></a>
+<br>
+<a href="/home/archived-news.xml">Archived News</a>
+</div>
+</div>
+</div>
+<div id="sponsorsparade">
+<div>
+<span class="headertext columnheader headerlink"><a href="/home/about/members/">SPONSORS</a></span>
+<br>
+<br>
+<a title="U.S. Department of Homeland Security (DHS)" href="http://www.dhs.gov/"><img alt="DHS" src="/images/logo_dhs.gif"></a><a title="National Science Foundation (NSF)" href="http://www.nsf.gov/"><img height="45" width="65" alt="NSF" src="/images/logo_NSF.gif"></a><a title="Comcast" href="http://corporate.comcast.com/"><img height="45" width="65" alt="Comcast" src="/images/logo_comcast.png"></a><a title="Verisign" href="http://www.verisigninc.com/"><img height="45" width="65" alt="Verisign" src="/images/logo_verisign.png"></a><a title="San Diego Supercomputer Center (SDSC)" href="http://www.sdsc.edu/"><img height="45" width="65" alt="SDSC" src="/images/logo_sdsc.gif"></a><a title="University of California at San Diego (UC San Diego)" href="http://www.ucsd.edu/"><img height="45" width="65" alt="UC San Diego" src="/images/logo_ucsd.gif"></a>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div style="text-align:center">
+        Center for Applied Internet Data Analysis
+      
+    &nbsp;&nbsp; | &nbsp;&nbsp;Based at the <a href="//www.sdsc.edu/">University of California's San Diego Supercomputer Center</a>
+</div>
+<div style="position:absolute; bottom:0.5em; right:1em;" class="noprint" id="privacynotice">
+<a href="/home/legal/privacy/">Privacy</a>
+</div>
+</div>
+</div>
+<script src="/c2supportfiles/awstats_misc_tracker-min.js" type="text/javascript" language="javascript"></script>
+<noscript>
+<img style="display: none" border="0" width="0" height="0" src="/c2supportfiles/awstats_misc_tracker-min.js?nojs=y"></noscript>
+</body>
+</html>

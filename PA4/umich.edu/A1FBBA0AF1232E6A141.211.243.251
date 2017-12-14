@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Date: Wed, 13 Dec 2017 23:58:51 GMT
+Server: Apache
+X-Powered-By: PHP/5.3.3
+Cache-Control: public
+Expires: Wed, 27 Dec 2017 18:58:51 EST
+Last-Modified: Tue, 12 Nov 2013 17:16:10 GMT
+Content-Length: 257
+Connection: close
+Content-Type: text/javascript
+
+
+$(document).ready(function(){$('.drop-down').closest('div').find('> a').click(function(event){event.preventDefault();$(this).find('.fa-plus').toggle(0);$(this).find('.fa-minus').toggle(0);$(this).closest('div').find('.drop-down').slideToggle('slow');});});

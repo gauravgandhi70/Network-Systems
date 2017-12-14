@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Date: Thu, 14 Dec 2017 01:47:47 GMT
+Server: Apache/2.4.25 (FreeBSD) OpenSSL/1.0.1s-freebsd PHP/5.6.30
+Last-Modified: Mon, 02 Oct 2017 17:39:03 GMT
+ETag: "62d-55a93d9c50bf5"
+Accept-Ranges: bytes
+Content-Length: 1581
+Connection: close
+Content-Type: application/javascript
+
+var TJK={};TJK.debug=false;TJK.sayDebug=function(b){if(TJK.debug){try{console.log(b)}catch(a){alert(b)}}};TJK.swap=function(){TJK.sayDebug("swap called on "+this.nodeName+"("+this.className+")");this.className=this.className.replace(/trigger/,"msieFix")};TJK.swapBack=function(){TJK.sayDebug("swapback called on "+this.nodeName+"("+this.className+")");this.className=this.className.replace(/msieFix/,"trigger")};TJK.toggle=function(){window.alert("toggle "+this.parentNode.className);bTrigger=this.parentNode.className.match(/trigger/);if(bTrigger){this.parentNode.className=this.parentNode.className.replace(/trigger/,"msieFix")}else{this.parentNode.className=this.parentNode.className.replace(/msieFix/,"trigger")}return false};TJK.reveal=function(){this.parentNode.parentNode.parentNode.className=this.parentNode.parentNode.parentNode.className.replace(/trigger/,"msieFix")};TJK.cleanUp=function(){var c;var a=document.getElementsByTagName("li");var d=a.length;for(var b=0;b<d;b++){if(a[b]!=this.parentNode){a[b].className=a[b].className.replace(/msieFix/,"trigger")}}};TJK.keyBoardDropDown=function(){var a=document.getElementById("TJK_dropDownMenu").getElementsByTagName("li");var c=a.length;if(document.getElementById){for(var b=0;b<c;b++){if(a[b].id){if(a[b].className=="selectedtab"){a[b].className="selectedtab trigger"}else{a[b].className="trigger"}a[b].firstChild.onfocus=TJK.cleanUp}if(a[b].className=="trigger"){a[b].onmouseover=TJK.swap;a[b].onmouseout=TJK.swapBack}if(!a[b].id){a[b].firstChild.onfocus=TJK.reveal}}}};window.onload=function(){TJK.keyBoardDropDown()};
